@@ -26,7 +26,7 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   // UI at /api/docs, JSON at /api/docs-json (the web app generates its types from it).
-  const docConfig = new DocumentBuilder().setTitle('API').build();
+  const docConfig = new DocumentBuilder().setTitle('Footprint API').build();
   SwaggerModule.setup('api/docs', app, () =>
     SwaggerModule.createDocument(app, docConfig),
   );

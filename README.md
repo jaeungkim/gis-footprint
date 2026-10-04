@@ -124,7 +124,7 @@ User            ACTIVE ⇄ SUSPENDED,  ACTIVE | SUSPENDED → DELETED (소프트
 - 시각은 UTC ISO 8601로 저장하고 응답합니다. 사용자가 입력하는 날짜는 한국 시간 기준으로 해석합니다.
 - 중복되면 안 되는 생성 요청(`POST /api/orders`)은 `Idempotency-Key` 헤더를 받습니다.
 - 공간 데이터는 GeoJSON(RFC 7946, EPSG:4326)으로 주고받습니다.
-- web의 API 타입은 OpenAPI 명세에서 생성합니다(`pnpm --filter @repo/web gen:api`).
+- web의 API 타입은 OpenAPI 명세에서 생성합니다(`pnpm --filter @footprint/web gen:api`).
 
 ## 데이터와 외부 시스템
 

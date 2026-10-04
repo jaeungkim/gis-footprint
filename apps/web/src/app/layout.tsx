@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Next Nest Boilerplate",
-    template: "%s | Next Nest Boilerplate",
+    default: "Footprint",
+    template: "%s | Footprint",
   },
-  description: "Next.js + NestJS starter",
+  description: "Satellite imagery marketplace",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

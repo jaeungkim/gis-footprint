@@ -1,4 +1,4 @@
-# 개발 환경 (next-nest-boilerplate)
+# 개발 환경
 
 pnpm workspace with a Next.js app and a NestJS API on Postgres.
 
@@ -16,7 +16,7 @@ Needs Node 22+, pnpm, and Docker.
 pnpm install                                  # also generates the Prisma client
 cp apps/api/.env.example apps/api/.env
 docker compose up -d --wait                   # start Postgres
-pnpm --filter @repo/api db:migrate            # apply migrations
+pnpm --filter @footprint/api db:migrate        # apply migrations
 pnpm dev                                      # both apps, in parallel
 ```
 
@@ -29,10 +29,10 @@ Other commands: `pnpm build`, `pnpm lint`.
 The schema lives in `apps/api/prisma/schema.prisma`. After changing it:
 
 ```bash
-pnpm --filter @repo/api db:migrate --name <change>
+pnpm --filter @footprint/api db:migrate --name <change>
 ```
 
-This creates a migration in `apps/api/prisma/migrations` (commit it), applies it, and regenerates the client in `apps/api/src/generated` (gitignored). Use `PrismaService` in any Nest provider. In production, apply migrations with `pnpm --filter @repo/api exec prisma migrate deploy`.
+This creates a migration in `apps/api/prisma/migrations` (commit it), applies it, and regenerates the client in `apps/api/src/generated` (gitignored). Use `PrismaService` in any Nest provider. In production, apply migrations with `pnpm --filter @footprint/api exec prisma migrate deploy`.
 
 `docker compose down` stops Postgres; add `-v` to also delete its data.
 
@@ -56,7 +56,7 @@ This creates a migration in `apps/api/prisma/migrations` (commit it), applies it
 Nest serves its OpenAPI spec at `/api/docs-json`, built from `*.dto.ts` classes and explicit controller return types (swagger CLI plugin). After changing an endpoint, with `pnpm dev` running:
 
 ```bash
-pnpm --filter @repo/web gen:api
+pnpm --filter @footprint/web gen:api
 ```
 
 This regenerates `apps/web/src/lib/schema.d.ts`. Commit it. If it fails with `ECONNREFUSED`, the API is not running.
