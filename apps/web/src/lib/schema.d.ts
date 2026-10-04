@@ -20,12 +20,55 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/scenes/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["ScenesController_findOne"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     HealthDto: {
       status: string;
+    };
+    ScenePropertiesDto: {
+      /** @enum {string} */
+      sensor: "EO" | "SAR";
+      cloudCover: number | null;
+      thumbnailUrl: string | null;
+      platform: string;
+      /** Format: date-time */
+      acquiredAt: string;
+      gsdM: number;
+    };
+    SceneFeatureDto: {
+      /** @enum {string} */
+      type: "Feature";
+      geometry:
+        | {
+            /** @enum {string} */
+            type: "Polygon";
+            coordinates: number[][][];
+          }
+        | {
+            /** @enum {string} */
+            type: "MultiPolygon";
+            coordinates: number[][][][];
+          };
+      id: string;
+      properties: components["schemas"]["ScenePropertiesDto"];
     };
   };
   responses: never;
@@ -52,6 +95,33 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["HealthDto"];
         };
+      };
+    };
+  };
+  ScenesController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SceneFeatureDto"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

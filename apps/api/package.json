@@ -15,7 +15,8 @@
     "start:prod": "node dist/main",
     "lint": "oxlint --type-aware src/",
     "postinstall": "prisma generate",
-    "db:migrate": "prisma generate && prisma migrate dev"
+    "db:migrate": "prisma generate && prisma migrate dev",
+    "test": "tsc -p tsconfig.build.json --outDir dist-test --incremental false && node --test \"dist-test/**/*.spec.js\""
   },
   "dependencies": {
     "@nestjs/common": "^12.1.0",

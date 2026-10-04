@@ -15,3 +15,6 @@ apps/api/src/generated
 
 # Python venv for scripts/
 .venv
+
+# api test build
+apps/api/dist-test

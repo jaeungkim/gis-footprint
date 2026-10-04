@@ -1,4 +1,4 @@
-import { findPolygonError } from '../../../geo/polygon.js';
+import { findPolygonError, rewind } from '../../../geo/polygon.js';
 import type { Scene, Sensor } from '../scene.js';
 import { stacItemSchema } from './stac-item.schema.js';
 
@@ -14,6 +14,11 @@ const SENSOR_BY_COLLECTION: Record<string, Sensor> = {
   'sentinel-1-grd': 'SAR',
 };
 
+/**
+ * STAC 아이템을 Scene 타입으로 변환합니다.
+ * @param input - 변환할 STAC 아이템
+ * @returns 변환된 Scene 또는 거부 사유
+ */
 export function toScene(input: unknown): ToSceneResult {
   const parsed = stacItemSchema.safeParse(input);
   if (!parsed.success) {
@@ -34,6 +39,21 @@ export function toScene(input: unknown): ToSceneResult {
     sensor === 'EO' ? assets.red?.gsd : properties['sar:resolution_range'];
   if (gsdM === undefined) return reject(id, 'INVALID_SCHEMA', 'gsd 없음');
 
+  // 편파와 촬영 모드가 없는 SAR는 어떤 영상인지 알 수 없어서 뺀다
+  if (
+    sensor === 'SAR' &&
+    !(
+      properties['sar:polarizations']?.length &&
+      properties['sar:instrument_mode']
+    )
+  ) {
+    return reject(
+      id,
+      'INVALID_SCHEMA',
+      'sar:polarizations 또는 sar:instrument_mode 없음',
+    );
+  }
+
   // S1 썸네일은 s3:// (요금 버킷)이라 브라우저에서 못 연다
   const thumbnail = assets.thumbnail?.href;
 
@@ -47,8 +67,9 @@ export function toScene(input: unknown): ToSceneResult {
       cloudCover:
         sensor === 'EO' ? (properties['eo:cloud_cover'] ?? null) : null,
       gsdM,
-      footprint: geometry,
+      footprint: rewind(geometry),
       thumbnailUrl: thumbnail?.startsWith('https://') ? thumbnail : null,
+      updatedAt: properties.updated ? new Date(properties.updated) : null,
       stac: input,
     },
   };

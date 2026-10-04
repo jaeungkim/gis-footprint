@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { envSchema } from './env.js';
+import { CatalogModule } from './modules/catalog/catalog.module.js';
 import { PrismaModule } from './prisma.module.js';
 
 @Module({
@@ -10,6 +11,7 @@ import { PrismaModule } from './prisma.module.js';
     // Loads apps/api/.env (if present) and validates it with the zod schema.
     ConfigModule.forRoot({ isGlobal: true, validationSchema: envSchema }),
     PrismaModule,
+    CatalogModule,
   ],
   controllers: [AppController],
   providers: [AppService],

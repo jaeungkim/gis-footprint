@@ -11,5 +11,6 @@ export interface Scene {
   gsdM: number;
   footprint: Polygon | MultiPolygon;
   thumbnailUrl: string | null;
+  updatedAt: Date | null; // STAC properties.updated, 같은 id끼리 최신 판별용
   stac: unknown;
 }
