@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Validated at startup by ConfigModule; a bad or missing value aborts boot.
 export const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
