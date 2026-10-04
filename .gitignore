@@ -1,0 +1,14 @@
+node_modules
+dist
+.next
+coverage
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.claude/settings.local.json
+
+# Prisma client (generated on install)
+apps/api/src/generated

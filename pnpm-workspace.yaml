@@ -1,0 +1,10 @@
+packages:
+  - apps/*
+
+# pnpm 11 blocks dependency install scripts unless listed here. None of these
+# are needed: Prisma downloads its engines on first use.
+allowBuilds:
+  '@prisma/engines': false
+  '@scarf/scarf': false
+  prisma: false
+  unrs-resolver: false
