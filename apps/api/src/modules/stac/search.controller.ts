@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Header, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Header, HttpCode, Post, Query } from '@nestjs/common';
 import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
 import { parseOrThrow } from '../../zod-problem.js';
@@ -57,6 +57,7 @@ export class SearchController {
   }
 
   @Post('search')
+  @HttpCode(200)
   @Header('Content-Type', GEOJSON)
   @ApiBody({ schema: searchBodyDocsSchema() as any })
   post(@Body() raw: unknown) {

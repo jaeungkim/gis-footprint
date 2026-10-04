@@ -36,6 +36,118 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/stac": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["LandingController_landing"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/stac/conformance": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["LandingController_conformance"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/stac/queryables": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["LandingController_queryables"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/stac/sortables": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["LandingController_sortables"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/stac/collections": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["CollectionsController_list"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/stac/collections/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["CollectionsController_one"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/stac/search": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["SearchController_get"];
+    put?: never;
+    post: operations["SearchController_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -122,6 +234,213 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  LandingController_landing: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LandingController_conformance: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LandingController_queryables: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LandingController_sortables: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CollectionsController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CollectionsController_one: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SearchController_get: {
+    parameters: {
+      query?: {
+        /** @description cql2-json만 지원 */
+        "filter-lang"?: unknown;
+        /** @description CQL2-JSON(URL 인코딩). filter-lang=cql2-json 필수 */
+        filter?: unknown;
+        /** @description +field,-field. /api/stac/sortables */
+        sortby?: unknown;
+        /** @description next 링크의 토큰 */
+        token?: unknown;
+        /** @description 1~100, 기본 10. 초과는 100으로 */
+        limit?: unknown;
+        /** @description 콤마 구분, 최대 100 */
+        ids?: unknown;
+        /** @description 콤마 구분 */
+        collections?: unknown;
+        /** @description RFC 3339 "start/end", "../end", "start/..", 단일 시각. 양끝 포함. +는 %2B로 */
+        datetime?: unknown;
+        /** @description west,south,east,north */
+        bbox?: unknown;
+        /** @description GeoJSON Polygon 또는 MultiPolygon(JSON 문자열) */
+        intersects?: unknown;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+    };
+  };
+  SearchController_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          intersects?:
+            | {
+                /** @enum {string} */
+                type: "Polygon";
+                coordinates: number[][][];
+              }
+            | {
+                /** @enum {string} */
+                type: "MultiPolygon";
+                coordinates: number[][][][];
+              };
+          bbox?: number[];
+          datetime?: string;
+          collections?: string[];
+          ids?: string[];
+          limit?: number;
+          token?: string;
+          sortby?: {
+            /** @enum {string} */
+            field:
+              | "id"
+              | "properties.datetime"
+              | "properties.eo:cloud_cover"
+              | "properties.aoi:coverage_pct";
+            /** @enum {string} */
+            direction: "asc" | "desc";
+          }[];
+          /** @description CQL2-JSON (Basic). 예: {"op":"<=","args":[{"property":"eo:cloud_cover"},20]}. 속성은 /api/stac/queryables */
+          filter?: {
+            [key: string]: unknown;
+          };
+          /** @enum {string} */
+          "filter-lang"?: "cql2-json";
+        };
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": Record<string, never>;
+        };
       };
     };
   };
