@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
+    "test": "node --test \"src/**/*.test.ts\"",
     "gen:api": "openapi-typescript http://localhost:3001/api/docs-json -o src/lib/schema.d.ts && prettier --write src/lib/schema.d.ts"
   },
   "dependencies": {
