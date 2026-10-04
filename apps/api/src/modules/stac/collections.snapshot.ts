@@ -1,11 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { dataFile } from '../../data-file.js';
 
-// src/와 dist/ 둘 다 apps/api 아래 같은 깊이라 어느 쪽에서 돌아도 리포 루트의 data/를 가리킨다.
-export const COLLECTIONS_FILE = new URL(
-  '../../../../../data/catalog/collections.json',
-  import.meta.url,
-);
+const COLLECTIONS_FILE = dataFile('catalog/collections.json');
 
 export type StacCollection = { id: string } & Record<string, unknown>;
 

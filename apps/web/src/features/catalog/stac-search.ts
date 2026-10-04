@@ -1,4 +1,4 @@
-// 검색 조건(URL) → STAC Item Search POST 본문. 값 import가 없어야 node --test로 바로 돈다.
+// 검색 조건(URL) → STAC Item Search POST 본문, 그리고 화면이 같이 쓰는 타입과 표시 함수.
 
 export type Sensor = "eo" | "sar";
 export type SortPreset = "latest" | "coverage" | "cloud";
@@ -6,6 +6,12 @@ export type SortPreset = "latest" | "coverage" | "cloud";
 export type AoiGeometry =
   | { type: "Polygon"; coordinates: number[][][] }
   | { type: "MultiPolygon"; coordinates: number[][][][] };
+
+export interface Aoi {
+  id: string;
+  name: string;
+  geometry: AoiGeometry;
+}
 
 export interface SearchConditions {
   from: string | null; // KST 날짜 YYYY-MM-DD
@@ -34,9 +40,11 @@ export interface SearchBody {
   limit: number;
 }
 
+export type BlockReason = "no-sensor" | "date-range";
+
 export type SearchBodyResult =
   | { ok: true; body: SearchBody }
-  | { ok: false; reason: "no-sensor" | "date-range" };
+  | { ok: false; reason: BlockReason };
 
 // 화면에서 쓰는 필드만. 응답은 Swagger 타입이 없어서 여기서 정의한다.
 export interface StacItem {
@@ -66,6 +74,13 @@ export const COLLECTION_BY_SENSOR: Record<Sensor, string> = {
   sar: "sentinel-1-grd",
 };
 export const PAGE_SIZE = 20;
+
+// sentinel-2a → Sentinel-2A
+export const platformLabel = (p: string) =>
+  p.replace(
+    /^sentinel-(\d)(\w)$/,
+    (_, n, l) => `Sentinel-${n}${l.toUpperCase()}`,
+  );
 
 const SORTBY: Record<SortPreset, SearchBody["sortby"]> = {
   latest: [{ field: "properties.datetime", direction: "desc" }],

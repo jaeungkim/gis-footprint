@@ -24,8 +24,10 @@ export function useSceneSearch(body: SearchBody | null) {
       return data as unknown as ItemCollection;
     },
     // 4xx는 다시 보내도 같다. 5xx와 네트워크 오류만 재시도.
-    retry: (count, err) =>
-      count < 3 && !((err as { status?: number }).status! < 500),
+    retry: (count, err) => {
+      const status = (err as { status?: number }).status;
+      return count < 3 && !(status !== undefined && status < 500);
+    },
     // next.href는 3001 origin이라 안 따라가고 토큰만 쓴다
     getNextPageParam: (last) =>
       last.links.find((l) => l.rel === "next")?.body?.token,

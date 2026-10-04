@@ -5,9 +5,13 @@ import { ImageOff, Radar } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useSelection } from "../selection-store";
-import { COLLECTION_BY_SENSOR, type StacItem } from "../stac-search";
+import {
+  COLLECTION_BY_SENSOR,
+  platformLabel,
+  type BlockReason,
+  type StacItem,
+} from "../stac-search";
 import type { useSceneSearch } from "../use-scene-search";
-import { platformLabel } from "./scene-filter-panel";
 
 const kst = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
@@ -23,7 +27,7 @@ export function SceneList({
 }: {
   search: ReturnType<typeof useSceneSearch>;
   scenes: StacItem[];
-  blocked: "no-sensor" | "date-range" | null;
+  blocked: BlockReason | null;
   hasAoi: boolean;
 }) {
   const rootRef = useRef<HTMLElement>(null);

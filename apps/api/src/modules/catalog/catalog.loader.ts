@@ -1,13 +1,10 @@
 import { readFile } from 'node:fs/promises';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { dataFile } from '../../data-file.js';
 import { CatalogRepository } from './catalog.repository.js';
 import { loadCatalog } from './load-catalog.js';
 
-// src/와 dist/ 둘 다 apps/api 아래 같은 깊이라 어느 쪽에서 돌아도 리포 루트의 data/를 가리킨다.
-export const CATALOG_FILE = new URL(
-  '../../../../../data/catalog/items.json',
-  import.meta.url,
-);
+const CATALOG_FILE = dataFile('catalog/items.json');
 
 // 서버가 요청을 받기 전에 카탈로그를 채운다. 불량 Item은 빼고 로그만 남긴다.
 // 파일 자체가 없거나 FeatureCollection이 아니면 그건 설정 문제라 그대로 실패시킨다.

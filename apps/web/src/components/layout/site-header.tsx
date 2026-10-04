@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ModeToggle } from "@/components/ui/mode-toggle";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export function SiteHeader() {
   return (

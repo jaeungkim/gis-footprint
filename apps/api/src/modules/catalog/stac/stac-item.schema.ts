@@ -1,14 +1,5 @@
 import { z } from 'zod';
-
-const ring = z.array(z.array(z.number()).min(2));
-
-export const geometrySchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('Polygon'), coordinates: z.array(ring).min(1) }),
-  z.object({
-    type: z.literal('MultiPolygon'),
-    coordinates: z.array(z.array(ring).min(1)).min(1),
-  }),
-]);
+import { geometrySchema } from '../../../geo/geometry.schema.js';
 
 // 우리가 쓰는 필드만 검사한다. 나머지 필드는 원본(stac)으로 그대로 보관.
 export const stacItemSchema = z.object({

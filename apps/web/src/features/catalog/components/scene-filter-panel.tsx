@@ -3,9 +3,14 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { toDateString, useSearchConditions } from "../search-params";
-import { COLLECTION_BY_SENSOR, type Sensor } from "../stac-search";
+import {
+  COLLECTION_BY_SENSOR,
+  platformLabel,
+  type Aoi,
+  type BlockReason,
+  type Sensor,
+} from "../stac-search";
 import { usePlatforms } from "../use-scene-search";
-import type { Aoi } from "./explore";
 
 const SENSORS: { value: Sensor; label: string }[] = [
   { value: "eo", label: "광학 (EO)" },
@@ -14,19 +19,12 @@ const SENSORS: { value: Sensor; label: string }[] = [
 const GSD_OPTIONS = [10, 20, 30, 60];
 const selectClass = "h-8 rounded-lg border bg-transparent px-2";
 
-// sentinel-2a → Sentinel-2A
-export const platformLabel = (p: string) =>
-  p.replace(
-    /^sentinel-(\d)(\w)$/,
-    (_, n, l) => `Sentinel-${n}${l.toUpperCase()}`,
-  );
-
 export function SceneFilterPanel({
   aois,
   blocked,
 }: {
   aois: Aoi[];
-  blocked: "no-sensor" | "date-range" | null;
+  blocked: BlockReason | null;
 }) {
   const [params, setParams] = useSearchConditions();
   const platformsByCollection = usePlatforms().data ?? {};

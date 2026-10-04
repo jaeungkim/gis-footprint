@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { Suspense } from "react";
-import { Explore, type Aoi } from "@/features/catalog/components/explore";
-import type { AoiGeometry } from "@/features/catalog/stac-search";
+import { Explore } from "@/features/catalog/components/explore";
+import type { Aoi, AoiGeometry } from "@/features/catalog/stac-search";
 
 // 저장소에 있는 샘플 AOI. 빌드 때 한 번 읽는다.
 async function loadSampleAois(): Promise<Aoi[]> {
