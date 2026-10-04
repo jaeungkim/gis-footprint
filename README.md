@@ -81,3 +81,7 @@ GIS 쪽이 먼저 궁금해서 1, 2, 3, 11, 12, 16 순서로 먼저 간다. 단�
 - [docs/development.md](docs/development.md): 개발 환경과 명령어
 
 `mock/` 소스와 `docs/answers/`는 해당 단계를 끝내고 나서 연다. 데이터가 지저분한 부분이나 mock이 이상하게 구는 건 직접 부딪혀 봐야 공부가 된다.
+
+## 라이선스
+
+코드는 [MIT](LICENSE) 라이선스다. `data/`의 데이터는 원본 라이선스를 따르고 출처와 표시 문구는 [data/README.md](data/README.md)에 있다.
