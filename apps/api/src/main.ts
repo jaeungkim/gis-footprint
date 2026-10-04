@@ -9,9 +9,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config: ConfigService<Env, true> = app.get(ConfigService);
 
-  // Helmet defaults, built into Nest 12.1. Must come before SwaggerModule.setup
-  // or the docs routes are served without the headers. Outside production, drop
-  // upgrade-insecure-requests so Swagger UI also loads over plain HTTP via a LAN IP.
   app.useSecurityHeaders(
     config.get('NODE_ENV', { infer: true }) === 'production'
       ? {}
@@ -25,7 +22,6 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.enableShutdownHooks();
 
-  // UI at /api/docs, JSON at /api/docs-json (the web app generates its types from it).
   const docConfig = new DocumentBuilder().setTitle('Footprint API').build();
   SwaggerModule.setup('api/docs', app, () =>
     SwaggerModule.createDocument(app, docConfig),
