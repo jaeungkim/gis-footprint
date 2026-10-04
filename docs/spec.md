@@ -57,15 +57,16 @@ User            ACTIVE <-> SUSPENDED
 
 | 경로 | 내용 | 단계 |
 | --- | --- | --- |
-| `data/catalog/items.json` | 한반도 STAC 스냅샷. Sentinel-2 L2A(광학)와 Sentinel-1 GRD(SAR), 2026년 7~9월 | 1 |
+| `data/catalog/items.json` | 한반도 STAC 스냅샷. Sentinel-2 L2A(광학)와 Sentinel-1 GRD(SAR), 2026년 7~8월 | 1 |
+| `data/stac/items.json` | 9월분. mock STAC API만 내려주고 수집하면 카탈로그에 들어온다 | 6 |
 | `data/aois.geojson` | 샘플 관심 영역 | 2 |
 | `data/seed/price-rules.json` | 초기 가격 정책 | 7 |
-| `data/cogs/` | Sentinel-2 샘플 영상(COG). 몇 장면만 작게 잘라 뒀다 | 8, 12 |
+| `data/cogs/` | Sentinel-2 샘플 영상(COG) 6장면. 밴드 순서 red, green, blue, nir | 8, 12 |
 | `data/admin/sigungu.geojson` | 시군구 경계 | 11 |
 | `mock/stac-api` | STAC API 흉내. 수집 작업이 여기서 Item을 가져간다 | 6 |
 | `mock/processing-system` | 영상 처리 시스템 흉내 | 8 |
 | `mock/ai-model` | AI 분석 모델 흉내 | 15 |
 
-메타데이터와 영상은 [Earth Search](https://earth-search.aws.element84.com/v1)에서 한 번 받아서 저장소에 넣어 둔 것이다. 앱이 돌아가는 동안 인터넷에서 받는 건 배경 지도 타일([OpenFreeMap](https://openfreemap.org), API 키 없음)뿐이다.
+출처와 다시 만드는 법은 [data/README.md](../data/README.md)에 있다. 메타데이터와 영상은 [Earth Search](https://earth-search.aws.element84.com/v1)에서 한 번 받아서 저장소에 넣어 둔 것이다. 앱이 돌아가는 동안 인터넷에서 받는 건 배경 지도 타일([OpenFreeMap](https://openfreemap.org), API 키 없음)뿐이다.
 
 스냅샷은 실제 운영 데이터처럼 깨끗하지 않다.

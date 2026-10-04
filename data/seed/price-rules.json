@@ -1,0 +1,5 @@
+[
+  { "id": "eo-10m-2026", "sensor": "EO", "maxGsdM": 10, "pricePerKm2": 1200, "minAreaKm2": 25, "validFrom": "2026-01-01", "validTo": "2026-10-31" },
+  { "id": "eo-10m-2026-11", "sensor": "EO", "maxGsdM": 10, "pricePerKm2": 1400, "minAreaKm2": 25, "validFrom": "2026-11-01", "validTo": null },
+  { "id": "sar-10m-2026", "sensor": "SAR", "maxGsdM": 10, "pricePerKm2": 1800, "minAreaKm2": 50, "validFrom": "2026-01-01", "validTo": null }
+]

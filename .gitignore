@@ -12,3 +12,6 @@ coverage
 
 # Prisma client (generated on install)
 apps/api/src/generated
+
+# Python venv for scripts/
+.venv
