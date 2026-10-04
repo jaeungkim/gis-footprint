@@ -1,15 +1,32 @@
-import { SceneFilterPanel } from "@/features/catalog/components/scene-filter-panel";
-import { SceneList } from "@/features/catalog/components/scene-list";
-import { BaseMap } from "@/features/map/components/base-map";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { Suspense } from "react";
+import { Explore, type Aoi } from "@/features/catalog/components/explore";
+import type { AoiGeometry } from "@/features/catalog/stac-search";
 
-export default function ExplorePage() {
+// 저장소에 있는 샘플 AOI. 빌드 때 한 번 읽는다.
+async function loadSampleAois(): Promise<Aoi[]> {
+  const file = path.join(process.cwd(), "../../data/aois.geojson");
+  const fc = JSON.parse(await readFile(file, "utf8")) as {
+    features: {
+      id: string;
+      properties: { name: string };
+      geometry: AoiGeometry;
+    }[];
+  };
+  return fc.features.map((f) => ({
+    id: f.id,
+    name: f.properties.name,
+    geometry: f.geometry,
+  }));
+}
+
+export default async function ExplorePage() {
+  const aois = await loadSampleAois();
   return (
-    <div className="grid h-full grid-rows-[auto_1fr] md:grid-cols-[360px_1fr] md:grid-rows-1">
-      <aside className="flex min-h-0 flex-col border-b md:border-r md:border-b-0">
-        <SceneFilterPanel />
-        <SceneList />
-      </aside>
-      <BaseMap />
-    </div>
+    // nuqs(useSearchParams)는 Suspense 경계가 있어야 정적 렌더가 된다
+    <Suspense>
+      <Explore aois={aois} />
+    </Suspense>
   );
 }

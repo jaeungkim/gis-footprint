@@ -19,9 +19,11 @@ export const searchParamsParsers = {
   cloud: parseAsInteger.withDefault(100),
   platforms: parseAsArrayOf(parseAsString).withDefault([]),
   gsd: parseAsFloat,
-  sort: parseAsStringLiteral(["latest", "coverage", "cloud"] as const).withDefault(
+  sort: parseAsStringLiteral([
     "latest",
-  ),
+    "coverage",
+    "cloud",
+  ] as const).withDefault("latest"),
 };
 
 export const useSearchConditions = () => useQueryStates(searchParamsParsers);
