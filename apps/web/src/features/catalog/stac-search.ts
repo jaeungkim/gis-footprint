@@ -24,7 +24,13 @@ export interface SearchBody {
   datetime?: string;
   collections: string[];
   filter?: Cql2;
-  sortby: { field: string; direction: "asc" | "desc" }[];
+  sortby: {
+    field:
+      | "properties.datetime"
+      | "properties.aoi:coverage_pct"
+      | "properties.eo:cloud_cover";
+    direction: "asc" | "desc";
+  }[];
   limit: number;
 }
 
