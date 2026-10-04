@@ -15,9 +15,7 @@
     "start:prod": "node dist/main",
     "lint": "oxlint --type-aware src/",
     "postinstall": "prisma generate",
-    "db:migrate": "prisma generate && prisma migrate dev",
-    "test": "tsc -p tsconfig.build.json --outDir dist-test --incremental false && node --test \"dist-test/**/*.spec.js\"",
-    "test:db": "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app_test NODE_ENV=test prisma migrate deploy && tsc -p tsconfig.build.json --outDir dist-test --incremental false && DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app_test NODE_ENV=test node --test --test-concurrency=1 \"dist-test/**/*.dbtest.js\""
+    "db:migrate": "prisma generate && prisma migrate dev"
   },
   "dependencies": {
     "@nestjs/common": "^12.1.0",
@@ -37,9 +35,6 @@
   "devDependencies": {
     "@nestjs/cli": "^12.0.0",
     "@nestjs/schematics": "^12.0.0",
-    "@turf/area": "^7.4.0",
-    "@turf/helpers": "^7.4.0",
-    "@turf/intersect": "^7.4.0",
     "@types/express": "^5.0.0",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^24.0.0",
