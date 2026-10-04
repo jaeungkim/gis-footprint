@@ -17,7 +17,7 @@
     "postinstall": "prisma generate",
     "db:migrate": "prisma generate && prisma migrate dev",
     "test": "tsc -p tsconfig.build.json --outDir dist-test --incremental false && node --test \"dist-test/**/*.spec.js\"",
-    "test:db": "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app_test NODE_ENV=test prisma migrate deploy && tsc -p tsconfig.build.json --outDir dist-test --incremental false && DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app_test NODE_ENV=test node --test \"dist-test/**/*.dbtest.js\""
+    "test:db": "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app_test NODE_ENV=test prisma migrate deploy && tsc -p tsconfig.build.json --outDir dist-test --incremental false && DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app_test NODE_ENV=test node --test --test-concurrency=1 \"dist-test/**/*.dbtest.js\""
   },
   "dependencies": {
     "@nestjs/common": "^12.1.0",

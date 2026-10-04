@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [postgis]
 }
 
 model User {
@@ -12,4 +14,31 @@ model User {
   email     String   @unique
   name      String?
   createdAt DateTime @default(now())
+}
+
+enum Sensor {
+  EO
+  SAR
+}
+
+// 카탈로그 상품. STAC Item 하나에 대응한다. footprint가 Unsupported라서
+// Prisma 클라이언트에 create/findMany가 안 생기고, 전부 $queryRaw/$executeRaw로 다룬다.
+model Scene {
+  id           String    @id
+  groupKey     String    @map("group_key") // 처리 번호를 뺀 id. 재처리본 묶음
+  collection   String
+  sensor       Sensor
+  platform     String
+  acquiredAt   DateTime  @map("acquired_at") @db.Timestamptz
+  cloudCover   Float?    @map("cloud_cover")
+  gsdM         Float     @map("gsd_m")
+  footprint    Unsupported("geometry(MultiPolygon, 4326)")
+  thumbnailUrl String?   @map("thumbnail_url")
+  updatedAt    DateTime? @map("updated_at") @db.Timestamptz
+  stac         Json
+
+  @@index([acquiredAt(sort: Desc), id(sort: Desc)])
+  @@index([collection])
+  @@index([footprint], type: Gist)
+  @@map("scene")
 }

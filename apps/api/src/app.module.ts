@@ -4,6 +4,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { envSchema } from './env.js';
 import { CatalogModule } from './modules/catalog/catalog.module.js';
+import { StacModule } from './modules/stac/stac.module.js';
 import { PrismaModule } from './prisma.module.js';
 
 @Module({
@@ -12,6 +13,7 @@ import { PrismaModule } from './prisma.module.js';
     ConfigModule.forRoot({ isGlobal: true, validationSchema: envSchema }),
     PrismaModule,
     CatalogModule,
+    StacModule,
   ],
   controllers: [AppController],
   providers: [AppService],
