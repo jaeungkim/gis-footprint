@@ -66,7 +66,26 @@ This creates a migration in `apps/api/prisma/migrations` (commit it), applies it
 | Utils              | `es-toolkit`                                          |
 | Format             | Prettier + Tailwind plugin                            |
 
-`src/app/page.tsx` uses each one once. Delete it when you start building.
+## Web layout
+
+Next.js leaves project organization open. This app keeps project files outside `app/` (the docs' "store project files outside of app" strategy) and splits them by feature. Folder names follow the shadcn aliases in `components.json` (`components`, `ui`, `lib`, `hooks`).
+
+```
+apps/web/src
+  app/              routing only: layouts, pages, error/not-found, providers
+  components/
+    ui/             shadcn primitives (added with `shadcn add`)
+    layout/         app shell (site header)
+  hooks/            hooks shared across features (use-maplibre: base map + theme style)
+  lib/              framework-free helpers (api client + generated schema, geo, date)
+  features/<name>/
+    components/     feature UI
+    hooks/          URL state, server queries, client stores
+    lib/            pure logic and server-side loaders
+    types.ts, constants.ts
+```
+
+A feature imports from shared folders, never from another feature. Pages in `app/` compose features.
 
 ## API types
 

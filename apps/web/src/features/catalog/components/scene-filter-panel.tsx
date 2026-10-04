@@ -19,20 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import {
-  localToUtcDay,
-  toDateString,
-  useSearchConditions,
-  utcToLocalDay,
-} from "../search-params";
-import {
-  COLLECTION_BY_SENSOR,
-  platformLabel,
-  type Aoi,
-  type BlockReason,
-  type Sensor,
-} from "../stac-search";
-import { usePlatforms } from "../use-scene-search";
+import { localToUtcDay, toDateString, utcToLocalDay } from "@/lib/date";
+import { COLLECTION_BY_SENSOR } from "../constants";
+import { usePlatforms } from "../hooks/use-platforms";
+import { useSearchConditions } from "../hooks/use-search-conditions";
+import { platformLabel } from "../lib/format";
+import type { Aoi, BlockReason, Sensor } from "../types";
 
 const SENSORS: { value: Sensor; label: string }[] = [
   { value: "eo", label: "광학 (EO)" },

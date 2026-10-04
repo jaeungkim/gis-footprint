@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
-import { BaseMap } from "@/features/map/components/base-map";
-import { toDateString, useSearchConditions } from "../search-params";
-import { toSearchBody, type Aoi } from "../stac-search";
-import { useSceneSearch } from "../use-scene-search";
+import { toDateString } from "@/lib/date";
+import { useSceneSearch } from "../hooks/use-scene-search";
+import { useSearchConditions } from "../hooks/use-search-conditions";
+import { toSearchBody } from "../lib/search-body";
+import type { Aoi } from "../types";
 import { SceneFilterPanel } from "./scene-filter-panel";
 import { SceneList } from "./scene-list";
+import { SceneMap } from "./scene-map";
 
 export function Explore({ aois }: { aois: Aoi[] }) {
   const [params] = useSearchConditions();
@@ -37,7 +39,7 @@ export function Explore({ aois }: { aois: Aoi[] }) {
           hasAoi={aoi !== null}
         />
       </aside>
-      <BaseMap aoi={aoi?.geometry ?? null} scenes={scenes} />
+      <SceneMap aoi={aoi?.geometry ?? null} scenes={scenes} />
     </div>
   );
 }
