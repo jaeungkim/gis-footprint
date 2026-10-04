@@ -4,7 +4,7 @@ import { CatalogRepository } from './catalog.repository.js';
 import { loadCatalog } from './load-catalog.js';
 
 // src/와 dist/ 둘 다 apps/api 아래 같은 깊이라 어느 쪽에서 돌아도 리포 루트의 data/를 가리킨다.
-const CATALOG_FILE = new URL(
+export const CATALOG_FILE = new URL(
   '../../../../../data/catalog/items.json',
   import.meta.url,
 );
@@ -32,9 +32,14 @@ export class CatalogLoader implements OnModuleInit {
     for (const id of duplicateIds) {
       this.logger.warn(`중복 ${id}: updated가 늦은 쪽을 남김`);
     }
-    await this.catalog.saveAll(scenes);
+    // DB가 거른 것(구멍 위치, 폴리곤 겹침)도 같은 형식으로 남긴다.
+    const dbRejected = (await this.catalog.saveAll(scenes)).rejected;
+    for (const { id, reason } of dbRejected) {
+      this.logger.warn(`제외 ${id} INVALID_GEOMETRY: ${reason}`);
+    }
+    const excluded = rejected.length + dbRejected.length;
     this.logger.log(
-      `카탈로그 적재 ${scenes.length}건 / 전체 ${total}건 (제외 ${rejected.length}, 중복 ${duplicateIds.length})`,
+      `카탈로그 적재 ${scenes.length - dbRejected.length}건 / 전체 ${total}건 (제외 ${excluded}, 중복 ${duplicateIds.length})`,
     );
   }
 }

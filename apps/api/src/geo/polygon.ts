@@ -100,3 +100,17 @@ function isClockwise(ring: Position[]): boolean {
   }
   return sum > 0;
 }
+
+// DB는 전부 MultiPolygon으로 저장한다. 원본 STAC geometry가 Polygon이었으면 다시 풀어 준다.
+export function toOriginalType(
+  multi: MultiPolygon,
+  stac: unknown,
+): Polygon | MultiPolygon {
+  const original =
+    typeof stac === 'object' && stac !== null && 'geometry' in stac
+      ? (stac.geometry as { type?: string } | null)?.type
+      : undefined;
+  return original === 'Polygon' && multi.coordinates.length === 1
+    ? { type: 'Polygon', coordinates: multi.coordinates[0] }
+    : multi;
+}

@@ -14,6 +14,12 @@ const SENSOR_BY_COLLECTION: Record<string, Sensor> = {
   'sentinel-1-grd': 'SAR',
 };
 
+// S2 L2A id는 S2B_52SEH_20260717_1_L2A 꼴이고 가운데 숫자가 처리 번호다.
+// 다른 컬렉션은 처리 번호가 없어서 id 그대로. 새 컬렉션이 들어오면 규칙을 추가한다.
+export function groupKeyOf(id: string): string {
+  return id.replace(/_\d+_(?=L2A$)/, '_');
+}
+
 /**
  * STAC 아이템을 Scene 타입으로 변환합니다.
  * @param input - 변환할 STAC 아이템
@@ -61,6 +67,8 @@ export function toScene(input: unknown): ToSceneResult {
     ok: true,
     scene: {
       id,
+      groupKey: groupKeyOf(id),
+      collection,
       sensor,
       platform: properties.platform,
       acquiredAt: new Date(properties.datetime),

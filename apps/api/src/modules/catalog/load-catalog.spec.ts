@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { loadCatalog } from './load-catalog.js';
+import { groupKeyOf } from './stac/to-scene.js';
 
 // node:test의 test()는 Promise를 돌려줘서 no-floating-promises 때문에 void를 붙인다.
 
@@ -123,4 +124,17 @@ void test('같은 id는 updated가 늦은 쪽을 남긴다', () => {
     assert.equal(scenes[0].cloudCover, 5);
     assert.deepEqual(duplicateIds, ['S2_A']);
   }
+});
+
+void test('collection과 groupKey를 채운다', () => {
+  const { scenes } = loadCatalog([s2({}, 'S2B_52SEH_20260717_1_L2A')]);
+  assert.equal(scenes[0].collection, 'sentinel-2-l2a');
+  assert.equal(scenes[0].groupKey, 'S2B_52SEH_20260717_L2A');
+});
+
+void test('groupKeyOf는 S2 처리 번호만 뺀다', () => {
+  assert.equal(groupKeyOf('S2B_52SEH_20260717_0_L2A'), 'S2B_52SEH_20260717_L2A');
+  assert.equal(groupKeyOf('S2B_52SEH_20260717_12_L2A'), 'S2B_52SEH_20260717_L2A');
+  const s1 = 'S1C_IW_GRDH_1SDV_20260704T093712_20260704T093737_004123_008F3B';
+  assert.equal(groupKeyOf(s1), s1);
 });

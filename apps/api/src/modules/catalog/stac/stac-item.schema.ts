@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const ring = z.array(z.array(z.number()).min(2));
 
-const geometrySchema = z.discriminatedUnion('type', [
+export const geometrySchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('Polygon'), coordinates: z.array(ring).min(1) }),
   z.object({
     type: z.literal('MultiPolygon'),
