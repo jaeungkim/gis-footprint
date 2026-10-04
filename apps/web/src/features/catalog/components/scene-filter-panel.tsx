@@ -1,8 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { toDateString, useSearchConditions } from "../search-params";
+import { CalendarIcon } from "lucide-react";
+import { ko } from "react-day-picker/locale";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import {
+  localToUtcDay,
+  toDateString,
+  useSearchConditions,
+  utcToLocalDay,
+} from "../search-params";
 import {
   COLLECTION_BY_SENSOR,
   platformLabel,
@@ -17,7 +39,8 @@ const SENSORS: { value: Sensor; label: string }[] = [
   { value: "sar", label: "레이더 (SAR)" },
 ];
 const GSD_OPTIONS = [10, 20, 30, 60];
-const selectClass = "h-8 rounded-lg border bg-transparent px-2";
+// Radix Select는 빈 문자열을 값으로 못 쓴다. "조건 없음"은 이 값으로 두고 URL에선 null.
+const ALL = "all";
 
 export function SceneFilterPanel({
   aois,
@@ -31,10 +54,6 @@ export function SceneFilterPanel({
   // 슬라이더는 놓을 때만 URL에 반영한다. 드래그 중 매번 검색하지 않게.
   const [cloudDraft, setCloudDraft] = useState<number | null>(null);
   const cloud = cloudDraft ?? params.cloud;
-  const commitCloud = () => {
-    if (cloudDraft !== null) setParams({ cloud: cloudDraft });
-    setCloudDraft(null);
-  };
 
   const platformsOf = (s: Sensor) =>
     platformsByCollection[COLLECTION_BY_SENSOR[s]] ?? [];
@@ -59,6 +78,8 @@ export function SceneFilterPanel({
   const platformOptions = params.sensors.flatMap(platformsOf);
   const hasAoi = aois.some((a) => a.id === params.aoi);
   const sort = params.sort === "coverage" && !hasAoi ? "latest" : params.sort;
+  const from = toDateString(params.from);
+  const to = toDateString(params.to);
 
   return (
     <form
@@ -67,47 +88,71 @@ export function SceneFilterPanel({
     >
       <label className="flex flex-col gap-1.5">
         <span className="font-medium">관심 지역</span>
-        <select
-          className={selectClass}
-          value={params.aoi ?? ""}
-          onChange={(e) => setParams({ aoi: e.target.value || null })}
+        <Select
+          value={params.aoi ?? ALL}
+          onValueChange={(v) => setParams({ aoi: v === ALL ? null : v })}
         >
-          <option value="">전체 (지역 조건 없음)</option>
-          {aois.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.name}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>전체 (지역 조건 없음)</SelectItem>
+            {aois.map((a) => (
+              <SelectItem key={a.id} value={a.id}>
+                {a.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </label>
 
       <fieldset className="flex flex-col gap-1.5">
         <legend className="mb-1.5 font-medium">촬영 기간 (한국 시간)</legend>
-        <div className="flex items-center gap-2">
-          <Input
-            type="date"
-            aria-label="시작일"
-            value={toDateString(params.from) ?? ""}
-            onChange={(e) =>
-              setParams({
-                from: e.target.value ? new Date(e.target.value) : null,
-              })
-            }
-            aria-invalid={blocked === "date-range"}
-          />
-          <span>~</span>
-          <Input
-            type="date"
-            aria-label="종료일"
-            value={toDateString(params.to) ?? ""}
-            onChange={(e) =>
-              setParams({
-                to: e.target.value ? new Date(e.target.value) : null,
-              })
-            }
-            aria-invalid={blocked === "date-range"}
-          />
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="justify-start font-normal"
+              aria-invalid={blocked === "date-range"}
+            >
+              <CalendarIcon />
+              {from || to ? (
+                `${from ?? ""} ~ ${to ?? ""}`
+              ) : (
+                <span className="text-muted-foreground">전체 기간</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto" align="start">
+            <Calendar
+              mode="range"
+              locale={ko}
+              resetOnSelect
+              defaultMonth={
+                params.from ? utcToLocalDay(params.from) : undefined
+              }
+              selected={{
+                from: params.from ? utcToLocalDay(params.from) : undefined,
+                to: params.to ? utcToLocalDay(params.to) : undefined,
+              }}
+              onSelect={(r) =>
+                setParams({
+                  from: r?.from ? localToUtcDay(r.from) : null,
+                  to: r?.to ? localToUtcDay(r.to) : null,
+                })
+              }
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="self-end"
+              disabled={!from && !to}
+              onClick={() => setParams({ from: null, to: null })}
+            >
+              지우기
+            </Button>
+          </PopoverContent>
+        </Popover>
         {blocked === "date-range" && (
           <p role="alert" className="text-destructive">
             시작일이 종료일보다 늦어요.
@@ -120,10 +165,9 @@ export function SceneFilterPanel({
         <div className="flex gap-4">
           {SENSORS.map((s) => (
             <label key={s.value} className="flex items-center gap-1.5">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={params.sensors.includes(s.value)}
-                onChange={(e) => toggleSensor(s.value, e.target.checked)}
+                onCheckedChange={(on) => toggleSensor(s.value, on === true)}
               />
               {s.label}
             </label>
@@ -144,13 +188,12 @@ export function SceneFilterPanel({
               (안 고르면 전체)
             </span>
           </legend>
-          <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <div className="flex flex-wrap gap-x-4 gap-y-1.5">
             {platformOptions.map((p) => (
               <label key={p} className="flex items-center gap-1.5">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={params.platforms.includes(p)}
-                  onChange={(e) => togglePlatform(p, e.target.checked)}
+                  onCheckedChange={(on) => togglePlatform(p, on === true)}
                 />
                 {platformLabel(p)}
               </label>
@@ -159,7 +202,7 @@ export function SceneFilterPanel({
         </fieldset>
       )}
 
-      <label className="flex flex-col gap-1.5">
+      <label className="flex flex-col gap-2.5">
         <span className="font-medium">
           최대 운량 {cloud === 100 ? "제한 없음" : `${cloud}%`}
           {!hasEo && (
@@ -169,51 +212,59 @@ export function SceneFilterPanel({
             </span>
           )}
         </span>
-        <input
-          type="range"
+        <Slider
           min={0}
           max={100}
           step={5}
-          value={cloud}
+          value={[cloud]}
           disabled={!hasEo}
-          onChange={(e) => setCloudDraft(Number(e.target.value))}
-          onPointerUp={commitCloud}
-          onKeyUp={commitCloud}
-          onBlur={commitCloud}
+          onValueChange={([v]) => setCloudDraft(v)}
+          onValueCommit={([v]) => {
+            setParams({ cloud: v });
+            setCloudDraft(null);
+          }}
         />
       </label>
 
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col gap-1.5">
           <span className="font-medium">최대 해상도</span>
-          <select
-            className={selectClass}
-            value={params.gsd ?? ""}
-            onChange={(e) =>
-              setParams({ gsd: e.target.value ? Number(e.target.value) : null })
+          <Select
+            value={params.gsd === null ? ALL : String(params.gsd)}
+            onValueChange={(v) =>
+              setParams({ gsd: v === ALL ? null : Number(v) })
             }
           >
-            <option value="">제한 없음</option>
-            {GSD_OPTIONS.map((g) => (
-              <option key={g} value={g}>
-                {g}m 이하
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>제한 없음</SelectItem>
+              {GSD_OPTIONS.map((g) => (
+                <SelectItem key={g} value={String(g)}>
+                  {g}m 이하
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </label>
         <label className="flex flex-col gap-1.5">
           <span className="font-medium">정렬</span>
-          <select
-            className={selectClass}
+          <Select
             value={sort}
-            onChange={(e) => setParams({ sort: e.target.value as typeof sort })}
+            onValueChange={(v) => setParams({ sort: v as typeof sort })}
           >
-            <option value="latest">최신순</option>
-            <option value="coverage" disabled={!hasAoi}>
-              커버리지 높은순{!hasAoi && " (지역 필요)"}
-            </option>
-            <option value="cloud">운량 낮은순</option>
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="latest">최신순</SelectItem>
+              <SelectItem value="coverage" disabled={!hasAoi}>
+                커버리지 높은순{!hasAoi && " (지역 필요)"}
+              </SelectItem>
+              <SelectItem value="cloud">운량 낮은순</SelectItem>
+            </SelectContent>
+          </Select>
         </label>
       </div>
     </form>
