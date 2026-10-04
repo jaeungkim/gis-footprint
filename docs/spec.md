@@ -61,7 +61,7 @@ User            ACTIVE <-> SUSPENDED
 | `data/stac/items.json` | 9월분. mock STAC API만 내려주고 수집하면 카탈로그에 들어온다 | 6 |
 | `data/aois.geojson` | 샘플 관심 영역 | 2 |
 | `data/seed/price-rules.json` | 초기 가격 정책 | 7 |
-| `data/cogs/` | Sentinel-2 샘플 영상(COG) 6장면. 밴드 순서 red, green, blue, nir | 8, 12 |
+| `data/cogs/` | 샘플 영상(COG). Sentinel-2 6장면(red, green, blue, nir), Sentinel-1 4장면(vv, vh) | 8, 12, 15 |
 | `data/admin/sigungu.geojson` | 시군구 경계 | 11 |
 | `mock/stac-api` | STAC API 흉내. 수집 작업이 여기서 Item을 가져간다 | 6 |
 | `mock/processing-system` | 영상 처리 시스템 흉내 | 8 |
