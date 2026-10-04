@@ -24,6 +24,23 @@ Open http://localhost:3000. Next rewrites `/api/*` to Nest, so the browser never
 
 Other commands: `pnpm build`, `pnpm lint`.
 
+## API layout
+
+Follows the Nest docs: one folder per feature module directly under `src/`, with `dto/` and `interfaces/` inside when the module has them.
+
+```
+apps/api/src
+  main.ts, app.module.ts
+  config/      env schema, repo data/ paths
+  common/      cross-cutting Nest pieces (filters/, later guards/, interceptors/, decorators/)
+  prisma/      PrismaModule (global) + PrismaService
+  geo/         plain GeoJSON helpers shared by modules, no Nest
+  health/      GET /api/health
+  catalog/     Scene storage (CatalogRepository), startup load, GET /api/scenes/:id
+  stac/        STAC API (/api/stac/*) on top of CatalogRepository
+  generated/   Prisma client (gitignored)
+```
+
 ## Database
 
 The schema lives in `apps/api/prisma/schema.prisma`. After changing it:

@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import type { MultiPolygon, Polygon } from 'geojson';
-import { Prisma } from '../../generated/prisma/client.js';
-import { toOriginalType } from '../../geo/polygon.js';
-import { PrismaService } from '../../prisma.service.js';
-import type { Scene, Sensor } from './scene.js';
+import { Prisma } from '../generated/prisma/client.js';
+import { toOriginalType } from '../geo/polygon.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import type { Scene, Sensor } from './interfaces/scene.interface.js';
 import type {
   AoiCheck,
   CollectionStat,
   SceneQuery,
   SearchResult,
-} from './scene-query.js';
+} from './interfaces/scene-query.interface.js';
 import { buildSearchSql } from './search.sql.js';
 
 // 저장소를 갈아 끼우는 자리. 16단계에서 성능을 바꿀 때 이 구현만 건드린다.

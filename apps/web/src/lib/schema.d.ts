@@ -11,7 +11,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations["AppController_health"];
+    get: operations["HealthController_check"];
     put?: never;
     post?: never;
     delete?: never;
@@ -191,7 +191,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  AppController_health: {
+  HealthController_check: {
     parameters: {
       query?: never;
       header?: never;
@@ -350,26 +350,26 @@ export interface operations {
   SearchController_get: {
     parameters: {
       query?: {
-        /** @description cql2-json만 지원 */
-        "filter-lang"?: unknown;
-        /** @description CQL2-JSON(URL 인코딩). filter-lang=cql2-json 필수 */
-        filter?: unknown;
-        /** @description +field,-field. /api/stac/sortables */
-        sortby?: unknown;
-        /** @description next 링크의 토큰 */
-        token?: unknown;
-        /** @description 1~100, 기본 10. 초과는 100으로 */
-        limit?: unknown;
-        /** @description 콤마 구분, 최대 100 */
-        ids?: unknown;
-        /** @description 콤마 구분 */
-        collections?: unknown;
-        /** @description RFC 3339 "start/end", "../end", "start/..", 단일 시각. 양끝 포함. +는 %2B로 */
-        datetime?: unknown;
-        /** @description west,south,east,north */
-        bbox?: unknown;
         /** @description GeoJSON Polygon 또는 MultiPolygon(JSON 문자열) */
         intersects?: unknown;
+        /** @description west,south,east,north */
+        bbox?: unknown;
+        /** @description RFC 3339 "start/end", "../end", "start/..", 단일 시각. 양끝 포함. +는 %2B로 */
+        datetime?: unknown;
+        /** @description 콤마 구분 */
+        collections?: unknown;
+        /** @description 콤마 구분, 최대 100 */
+        ids?: unknown;
+        /** @description 1~100, 기본 10. 초과는 100으로 */
+        limit?: unknown;
+        /** @description next 링크의 토큰 */
+        token?: unknown;
+        /** @description +field,-field. /api/stac/sortables */
+        sortby?: unknown;
+        /** @description CQL2-JSON(URL 인코딩). filter-lang=cql2-json 필수 */
+        filter?: unknown;
+        /** @description cql2-json만 지원 */
+        "filter-lang"?: unknown;
       };
       header?: never;
       path?: never;

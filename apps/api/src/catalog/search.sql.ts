@@ -1,5 +1,5 @@
-import { Prisma } from '../../generated/prisma/client.js';
-import type { SceneQuery, SortSpec } from './scene-query.js';
+import { Prisma } from '../generated/prisma/client.js';
+import type { SceneQuery, SortSpec } from './interfaces/scene-query.interface.js';
 
 const { sql, join, empty } = Prisma;
 

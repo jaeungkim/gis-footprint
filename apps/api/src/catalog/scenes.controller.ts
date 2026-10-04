@@ -1,7 +1,7 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { ApiNotFoundResponse } from '@nestjs/swagger';
 import { CatalogRepository } from './catalog.repository.js';
-import { SceneFeatureDto, toSceneFeature } from './scene-feature.dto.js';
+import { SceneFeatureDto, toSceneFeature } from './dto/scene-feature.dto.js';
 
 @Controller('scenes')
 export class ScenesController {

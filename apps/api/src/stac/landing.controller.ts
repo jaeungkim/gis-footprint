@@ -1,7 +1,7 @@
 import { Controller, Get, Header } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
-import type { Env } from '../../env.js';
+import type { Env } from '../config/env.js';
 import { CollectionsSnapshot } from './collections.snapshot.js';
 import { collectionHref, GEOJSON, href, JSON_TYPE, rootLink, STAC_PATH, type StacLink } from './links.js';
 import { queryablesSchema, sortablesSchema } from './queryables.js';

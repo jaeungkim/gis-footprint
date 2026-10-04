@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Env } from '../../env.js';
+import type { Env } from '../config/env.js';
 import { CatalogRepository } from '../catalog/catalog.repository.js';
 import { cql2ToSql } from './cql2/cql2-to-sql.js';
 import { toStacItem } from './item.js';

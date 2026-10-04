@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { dataFile } from '../../data-file.js';
+import { dataFile } from '../config/data-file.js';
 import { CatalogRepository } from './catalog.repository.js';
 import { loadCatalog } from './load-catalog.js';
 

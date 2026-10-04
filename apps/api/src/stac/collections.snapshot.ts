@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { dataFile } from '../../data-file.js';
+import { dataFile } from '../config/data-file.js';
 
 const COLLECTIONS_FILE = dataFile('catalog/collections.json');
 

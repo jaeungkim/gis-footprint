@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import type { MultiPolygon, Polygon } from 'geojson';
-import type { Scene, Sensor } from './scene.js';
+import type { Scene, Sensor } from '../interfaces/scene.interface.js';
 
 // swagger 플러그인은 중첩 배열과 geojson 타입을 못 읽어서 geometry 스키마는 직접 적는다.
 const position = { type: 'array', items: { type: 'number' }, minItems: 2 };

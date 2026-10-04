@@ -1,5 +1,5 @@
-import { toOriginalType } from '../../geo/polygon.js';
-import type { SceneRow } from '../catalog/scene-query.js';
+import { toOriginalType } from '../geo/polygon.js';
+import type { SceneRow } from '../catalog/interfaces/scene-query.interface.js';
 import { collectionHref, JSON_TYPE, rootLink } from './links.js';
 
 function round2(n: number): number {

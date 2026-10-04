@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { geometrySchema } from '../../../geo/geometry.schema.js';
+import { geometrySchema } from '../../geo/geometry.schema.js';
 
 // 우리가 쓰는 필드만 검사한다. 나머지 필드는 원본(stac)으로 그대로 보관.
 export const stacItemSchema = z.object({

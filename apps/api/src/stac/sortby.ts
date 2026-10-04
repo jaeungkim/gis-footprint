@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import type { SortSpec } from '../catalog/scene-query.js';
+import type { SortSpec } from '../catalog/interfaces/scene-query.interface.js';
 import { SORTABLE_NAMES, SORTABLES } from './queryables.js';
 
 export const MAX_SORT_FIELDS = 3;

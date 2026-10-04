@@ -1,7 +1,7 @@
 import { applyDecorators, Body, Controller, Get, Header, HttpCode, Post, Query } from '@nestjs/common';
 import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
-import { parseOrThrow } from '../../zod-problem.js';
+import { parseOrThrow } from '../common/zod-problem.js';
 import { GEOJSON } from './links.js';
 import { queryToBody, searchBodySchema } from './search-request.schema.js';
 import { SearchService } from './search.service.js';

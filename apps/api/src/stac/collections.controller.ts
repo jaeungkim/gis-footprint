@@ -1,9 +1,9 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
-import type { Env } from '../../env.js';
+import type { Env } from '../config/env.js';
 import { CatalogRepository } from '../catalog/catalog.repository.js';
-import type { CollectionStat } from '../catalog/scene-query.js';
+import type { CollectionStat } from '../catalog/interfaces/scene-query.interface.js';
 import { CollectionsSnapshot, type StacCollection } from './collections.snapshot.js';
 import { collectionHref, href, JSON_TYPE, rootLink, STAC_PATH } from './links.js';
 

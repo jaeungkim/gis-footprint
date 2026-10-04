@@ -1,5 +1,5 @@
-import type { Scene } from './scene.js';
-import { toScene, type ToSceneResult } from './stac/to-scene.js';
+import type { Scene } from './interfaces/scene.interface.js';
+import { toScene, type ToSceneResult } from './stac-item/to-scene.js';
 
 export type Rejected = Extract<ToSceneResult, { ok: false }>;
 

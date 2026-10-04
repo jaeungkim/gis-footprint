@@ -1,5 +1,5 @@
-import { findPolygonError, rewind } from '../../../geo/polygon.js';
-import type { Scene, Sensor } from '../scene.js';
+import { findPolygonError, rewind } from '../../geo/polygon.js';
+import type { Scene, Sensor } from '../interfaces/scene.interface.js';
 import { stacItemSchema } from './stac-item.schema.js';
 
 export type RejectReason =

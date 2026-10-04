@@ -1,5 +1,5 @@
-import { Prisma } from '../../generated/prisma/client.js';
-import type { SortKey } from '../catalog/scene-query.js';
+import { Prisma } from '../generated/prisma/client.js';
+import type { SortKey } from '../catalog/interfaces/scene-query.interface.js';
 
 // CQL2 filter에서 쓸 수 있는 속성. 컬럼은 여기서만 꺼내므로 사용자 입력이 SQL 텍스트가 되지 않는다.
 export type QueryableType = 'string' | 'number' | 'timestamp';

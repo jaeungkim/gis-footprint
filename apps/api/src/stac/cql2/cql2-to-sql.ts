@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { Prisma } from '../../../generated/prisma/client.js';
+import { Prisma } from '../../generated/prisma/client.js';
 import { QUERYABLES, type QueryableType } from '../queryables.js';
 import type { Cql2Expr, Literal, PropertyRef } from './cql2.schema.js';
 
