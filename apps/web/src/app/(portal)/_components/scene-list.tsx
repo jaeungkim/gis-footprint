@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { useSceneSearch } from "../_hooks/use-scene-search";
 import type { BlockReason, StacItem } from "../_lib/types";
 import { SceneCard } from "./scene-card";
@@ -41,7 +43,7 @@ export function SceneList({
   if (blocked) {
     body = <Message>조건을 고치면 검색해요.</Message>;
   } else if (search.isPending) {
-    body = <Skeleton />;
+    body = <Loading />;
   } else if (search.isError && scenes.length === 0) {
     body = (
       <Message>
@@ -62,7 +64,7 @@ export function SceneList({
           ))}
         </ul>
         <div ref={sentinelRef} />
-        {isFetchingNextPage && <Skeleton rows={2} />}
+        {isFetchingNextPage && <Loading rows={2} />}
         {search.isFetchNextPageError && (
           <Message>
             <span className="text-destructive">{search.error?.message}</span>
@@ -93,13 +95,15 @@ export function SceneList({
 
 function Message({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-3 py-8 text-center text-sm text-muted-foreground">
-      {children}
-    </div>
+    <Empty className="gap-3 p-0 py-8">
+      <EmptyDescription className="flex flex-col items-center gap-3">
+        {children}
+      </EmptyDescription>
+    </Empty>
   );
 }
 
-function Skeleton({ rows = 4 }: { rows?: number }) {
+function Loading({ rows = 4 }: { rows?: number }) {
   return (
     <ul
       aria-busy="true"
@@ -107,7 +111,9 @@ function Skeleton({ rows = 4 }: { rows?: number }) {
       className="mt-2 flex flex-col gap-2"
     >
       {Array.from({ length: rows }, (_, i) => (
-        <li key={i} className="h-[82px] animate-pulse rounded-lg bg-muted" />
+        <li key={i}>
+          <Skeleton className="h-[82px] rounded-lg" />
+        </li>
       ))}
     </ul>
   );

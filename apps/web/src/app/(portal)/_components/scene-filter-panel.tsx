@@ -1,11 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronRight } from "lucide-react";
 import { ko } from "react-day-picker/locale";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  FieldTitle,
+} from "@/components/ui/field";
 import {
   Popover,
   PopoverContent,
@@ -83,13 +98,13 @@ export function SceneFilterPanel({
       className="flex shrink-0 flex-col gap-3 border-b p-4 text-sm"
       onSubmit={(e) => e.preventDefault()}
     >
-      <label className="flex flex-col gap-1.5">
-        <span className="font-medium">관심 지역</span>
+      <Field>
+        <FieldLabel htmlFor="aoi">관심 지역</FieldLabel>
         <Select
           value={params.aoi ?? ALL}
           onValueChange={(v) => setParams({ aoi: v === ALL ? null : v })}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger id="aoi" className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -101,10 +116,10 @@ export function SceneFilterPanel({
             ))}
           </SelectContent>
         </Select>
-      </label>
+      </Field>
 
-      <fieldset className="flex flex-col gap-1.5">
-        <legend className="mb-1.5 font-medium">촬영 기간 (한국 시간)</legend>
+      <FieldSet className="gap-1.5">
+        <FieldLegend variant="label">촬영 기간 (한국 시간)</FieldLegend>
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -149,87 +164,85 @@ export function SceneFilterPanel({
           </PopoverContent>
         </Popover>
         {blocked === "date-range" && (
-          <p role="alert" className="text-destructive">
-            시작일이 종료일보다 늦어요.
-          </p>
+          <FieldError>시작일이 종료일보다 늦어요.</FieldError>
         )}
-      </fieldset>
+      </FieldSet>
 
-      <fieldset className="flex flex-col gap-1.5">
-        <legend className="mb-1.5 font-medium">영상 종류</legend>
+      <FieldSet className="gap-1.5">
+        <FieldLegend variant="label">영상 종류</FieldLegend>
         <div className="grid grid-cols-2 gap-2">
           {SENSORS.map((s) => {
             const info = SENSOR_INFO[s];
             return (
-              <label
-                key={s}
-                className="flex cursor-pointer flex-col gap-1 rounded-lg border p-2.5 transition-colors has-data-checked:border-primary has-data-checked:bg-primary/5"
-              >
-                <span className="flex items-center gap-1.5 font-medium">
+              <FieldLabel key={s} htmlFor={`sensor-${s}`}>
+                <Field orientation="horizontal">
                   <Checkbox
+                    id={`sensor-${s}`}
                     checked={params.sensors.includes(s)}
                     onCheckedChange={(on) => toggleSensor(s, on === true)}
                   />
-                  {info.label}
-                  <span className="font-normal text-muted-foreground">
-                    {info.short}
-                  </span>
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {info.desc}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {info.family} 위성
-                </span>
-              </label>
+                  <FieldContent>
+                    <FieldTitle>
+                      {info.label}
+                      <span className="font-normal text-muted-foreground">
+                        {info.short}
+                      </span>
+                    </FieldTitle>
+                    <FieldDescription className="text-xs">
+                      {info.desc}
+                      <br />
+                      {info.family} 위성
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldLabel>
             );
           })}
         </div>
         {blocked === "no-sensor" && (
-          <p role="alert" className="text-destructive">
-            영상 종류를 하나 이상 골라 주세요.
-          </p>
+          <FieldError>영상 종류를 하나 이상 골라 주세요.</FieldError>
         )}
-      </fieldset>
+      </FieldSet>
 
       {platformOptions.length > 0 && (
-        <details
-          open={platformsOpen}
-          onToggle={(e) => setPlatformsOpen(e.currentTarget.open)}
-        >
-          <summary className="cursor-pointer font-medium select-none">
-            위성 직접 고르기{" "}
+        <Collapsible open={platformsOpen} onOpenChange={setPlatformsOpen}>
+          <CollapsibleTrigger className="group flex items-center gap-1 font-medium">
+            <ChevronRight className="size-4 transition-transform group-data-[state=open]:rotate-90" />
+            위성 직접 고르기
             <span className="font-normal text-muted-foreground">
               {params.platforms.length > 0
                 ? `(${params.platforms.length}개 선택)`
                 : "(선택, 안 고르면 전체)"}
             </span>
-          </summary>
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            같은 계열 위성(예: 2A·2B·2C)은 성능이 같아요. 보통은 고를 필요
-            없어요.
-          </p>
-          <div className="mt-2 flex flex-col gap-1.5">
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-1.5 flex flex-col gap-2">
+            <FieldDescription className="text-xs">
+              같은 계열 위성(예: 2A·2B·2C)은 성능이 같아요. 보통은 고를 필요
+              없어요.
+            </FieldDescription>
             {platformOptions.map((p) => (
-              <label key={p} className="flex items-center gap-1.5">
+              <Field key={p} orientation="horizontal" className="gap-1.5">
                 <Checkbox
+                  id={`platform-${p}`}
                   checked={params.platforms.includes(p)}
                   onCheckedChange={(on) => togglePlatform(p, on === true)}
                 />
-                {platformLabel(p)}
-                {PLATFORM_NOTES[p] && (
-                  <span className="text-xs text-muted-foreground">
-                    {PLATFORM_NOTES[p]}
-                  </span>
-                )}
-              </label>
+                <FieldLabel htmlFor={`platform-${p}`} className="font-normal">
+                  {platformLabel(p)}
+                  {PLATFORM_NOTES[p] && (
+                    <span className="text-xs text-muted-foreground">
+                      {PLATFORM_NOTES[p]}
+                    </span>
+                  )}
+                </FieldLabel>
+              </Field>
             ))}
-          </div>
-        </details>
+          </CollapsibleContent>
+        </Collapsible>
       )}
 
-      <label className="flex flex-col gap-2.5">
-        <span className="font-medium">
+      <Field data-disabled={!hasEo} className="gap-2.5">
+        <FieldLabel htmlFor="cloud">
           최대 운량 {cloud === 100 ? "제한 없음" : `${cloud}%`}
           {!hasEo && (
             <span className="font-normal text-muted-foreground">
@@ -237,8 +250,9 @@ export function SceneFilterPanel({
               (광학 사진만 해당)
             </span>
           )}
-        </span>
+        </FieldLabel>
         <Slider
+          id="cloud"
           min={0}
           max={100}
           step={5}
@@ -250,18 +264,18 @@ export function SceneFilterPanel({
             setCloudDraft(null);
           }}
         />
-      </label>
+      </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1.5">
-          <span className="font-medium">최대 해상도</span>
+        <Field>
+          <FieldLabel htmlFor="gsd">최대 해상도</FieldLabel>
           <Select
             value={params.gsd === null ? ALL : String(params.gsd)}
             onValueChange={(v) =>
               setParams({ gsd: v === ALL ? null : Number(v) })
             }
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="gsd" className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -273,14 +287,14 @@ export function SceneFilterPanel({
               ))}
             </SelectContent>
           </Select>
-        </label>
-        <label className="flex flex-col gap-1.5">
-          <span className="font-medium">정렬</span>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="sort">정렬</FieldLabel>
           <Select
             value={sort}
             onValueChange={(v) => setParams({ sort: v as typeof sort })}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="sort" className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -291,7 +305,7 @@ export function SceneFilterPanel({
               <SelectItem value="cloud">운량 낮은순</SelectItem>
             </SelectContent>
           </Select>
-        </label>
+        </Field>
       </div>
     </form>
   );
