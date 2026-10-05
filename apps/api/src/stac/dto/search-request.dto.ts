@@ -45,17 +45,18 @@ function bad(message: string): never {
   throw new BadRequestException(message);
 }
 
-function parseJson(s: string, name: string): unknown {
+function parseJson(s: string, name: string, ctx: z.RefinementCtx): unknown {
   try {
     return JSON.parse(s);
   } catch {
-    bad(`${name}: JSON이 아님`);
+    ctx.addIssue({ code: 'custom', message: 'JSON이 아님', path: [name] });
   }
 }
 
 // GET 쿼리 파라미터 → POST 본문 모양. 리스트는 콤마 구분, intersects와 filter는 JSON 문자열.
-export function queryToBody(
+function queryToBody(
   query: Record<string, unknown>,
+  ctx: z.RefinementCtx,
 ): Record<string, unknown> {
   const get = (k: string): string | undefined => {
     const v = query[k];
@@ -66,7 +67,7 @@ export function queryToBody(
   const body: Record<string, unknown> = {};
   const intersects = get('intersects');
   if (intersects !== undefined)
-    body.intersects = parseJson(intersects, 'intersects');
+    body.intersects = parseJson(intersects, 'intersects', ctx);
 
   const bbox = get('bbox');
   if (bbox !== undefined) body.bbox = bbox.split(',').map(Number);
@@ -89,13 +90,16 @@ export function queryToBody(
 
   const filter = get('filter');
   if (filter !== undefined) {
-    body.filter = parseJson(filter, 'filter');
+    body.filter = parseJson(filter, 'filter', ctx);
     // GET의 filter-lang 기본은 cql2-text인데 우리는 지원하지 않는다. 스키마에서 400이 난다.
     body['filter-lang'] = get('filter-lang') ?? 'cql2-text';
   }
 
   return body;
 }
+
+// GET 쿼리. 본문 모양으로 바꾼 뒤 searchBodySchema를 그대로 통과한다.
+export const searchQuerySchema = z.preprocess(queryToBody, searchBodySchema);
 
 const iso = z.iso.datetime({ offset: true });
 

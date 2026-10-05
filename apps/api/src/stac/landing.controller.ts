@@ -2,7 +2,7 @@ import { Controller, Get, Header } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import type { Env } from '../config/env.js';
-import { CollectionsSnapshot } from './collections.snapshot.js';
+import { CollectionsService } from './collections.service.js';
 import {
   collectionHref,
   GEOJSON,
@@ -36,7 +36,7 @@ export class LandingController {
 
   constructor(
     config: ConfigService<Env, true>,
-    private readonly snapshot: CollectionsSnapshot,
+    private readonly collections: CollectionsService,
   ) {
     this.base = config.get('STAC_PUBLIC_URL', { infer: true });
   }
@@ -57,7 +57,7 @@ export class LandingController {
       { rel: 'service-doc', href: href(b, '/api/docs'), type: 'text/html' },
       { rel: 'conformance', href: at('/conformance'), type: JSON_TYPE },
       { rel: 'data', href: at('/collections'), type: JSON_TYPE },
-      ...this.snapshot.ids().map((id) => ({
+      ...this.collections.ids().map((id) => ({
         rel: 'child',
         href: collectionHref(b, id),
         type: JSON_TYPE,

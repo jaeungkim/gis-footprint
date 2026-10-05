@@ -10,9 +10,13 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
-import { parseOrThrow } from '../common/zod-problem.js';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
 import { GEOJSON } from './links.js';
-import { queryToBody, searchBodySchema } from './dto/search-request.dto.js';
+import {
+  type SearchBody,
+  searchBodySchema,
+  searchQuerySchema,
+} from './dto/search-request.dto.js';
 import { SearchService } from './search.service.js';
 
 // Swagger용. 재귀 CQL2 스키마는 JSON Schema로 내면 definitions가 생겨 web의 타입 생성이 못 풀어서
@@ -81,8 +85,10 @@ export class SearchController {
   @Get('search')
   @Header('Content-Type', GEOJSON)
   @GET_PARAMS
-  get(@Query() query: Record<string, unknown>) {
-    const body = parseOrThrow(searchBodySchema, queryToBody(query));
+  get(
+    @Query(new ZodValidationPipe(searchQuerySchema)) body: SearchBody,
+    @Query() query: Record<string, unknown>,
+  ) {
     return this.service.search(body, { method: 'GET', query });
   }
 
@@ -90,8 +96,7 @@ export class SearchController {
   @HttpCode(200)
   @Header('Content-Type', GEOJSON)
   @ApiBody({ schema: searchBodyDocsSchema() as any })
-  post(@Body() raw: unknown) {
-    const body = parseOrThrow(searchBodySchema, raw);
+  post(@Body(new ZodValidationPipe(searchBodySchema)) body: SearchBody) {
     return this.service.search(body, { method: 'POST', body });
   }
 }

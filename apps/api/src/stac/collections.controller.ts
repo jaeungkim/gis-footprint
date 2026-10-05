@@ -4,7 +4,7 @@ import { ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
 import type { Env } from '../config/env.js';
 import { CatalogRepository } from '../catalog/catalog.repository.js';
 import type { CollectionStat } from '../catalog/interfaces/scene-query.interface.js';
-import { CollectionsSnapshot } from './collections.snapshot.js';
+import { CollectionsService } from './collections.service.js';
 import type { StacCollection } from './interfaces/stac.interface.js';
 import {
   collectionHref,
@@ -21,7 +21,7 @@ export class CollectionsController {
 
   constructor(
     config: ConfigService<Env, true>,
-    private readonly snapshot: CollectionsSnapshot,
+    private readonly collections: CollectionsService,
     private readonly catalog: CatalogRepository,
   ) {
     this.base = config.get('STAC_PUBLIC_URL', { infer: true });
@@ -32,7 +32,7 @@ export class CollectionsController {
     const stats = await this.catalog.collectionStats();
 
     // DB에 scene이 하나도 없는 컬렉션은 extent를 못 만들어서 뺀다.
-    const collections = this.snapshot.all().flatMap((c) => {
+    const collections = this.collections.all().flatMap((c) => {
       const stat = stats.find((s) => s.collection === c.id);
       return stat ? [this.render(c, stat)] : [];
     });
@@ -53,7 +53,7 @@ export class CollectionsController {
   @Get(':id')
   @ApiNotFoundResponse()
   async one(@Param('id') id: string) {
-    const collection = this.snapshot.get(id);
+    const collection = this.collections.get(id);
     const stat = (await this.catalog.collectionStats()).find(
       (s) => s.collection === id,
     );

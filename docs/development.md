@@ -32,13 +32,14 @@ Follows the Nest docs: one folder per feature module directly under `src/`, with
 apps/api/src
   main.ts, app.module.ts
   config/      env schema, repo data/ paths
-  common/      cross-cutting Nest pieces (filters/, later guards/, interceptors/, decorators/)
+  common/      cross-cutting Nest pieces (filters/, pipes/, later guards/, interceptors/, decorators/)
   prisma/      PrismaModule (global) + PrismaService
   geo/         plain GeoJSON helpers shared by modules, no Nest
   health/      GET /api/health
   catalog/     Scene storage (CatalogRepository), startup load, GET /api/scenes/:id
   stac/        STAC API (/api/stac/*) on top of CatalogRepository
-               dto/ holds the zod search body (schema + inferred type, as in the Nest validation docs)
+               dto/ holds the zod search schemas + inferred type, checked by common/pipes/ZodValidationPipe
+               (Nest pipes docs). Not @Body({ schema }): Swagger would regenerate the hand-written search docs
   generated/   Prisma client (gitignored)
 ```
 

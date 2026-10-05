@@ -1,5 +1,5 @@
 import type { MultiPolygon, Polygon } from 'geojson';
-import type { Scene, Sensor } from '../interfaces/scene.interface.js';
+import type { Scene, Sensor } from './interfaces/scene.interface.js';
 
 // items.json의 STAC Item 중 우리가 읽는 필드만. 데이터는 깨끗하다고 보고 검사하지 않는다.
 export interface StacItem {

@@ -8,7 +8,7 @@ const COLLECTIONS_FILE = dataFile('catalog/collections.json');
 // Earth Search Collection 스냅샷. title, description, license, item_assets 등을 손으로 쓰지 않는다.
 // extent와 summaries의 platform/gsd는 응답할 때 DB 집계로 덮는다.
 @Injectable()
-export class CollectionsSnapshot implements OnModuleInit {
+export class CollectionsService implements OnModuleInit {
   private collections: StacCollection[] = [];
 
   async onModuleInit() {
