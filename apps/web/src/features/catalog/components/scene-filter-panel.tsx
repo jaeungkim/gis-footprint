@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { localToUtcDay, toDateString, utcToLocalDay } from "@/lib/date";
+import { dateToDay, dayToDate } from "@/lib/date";
 import { COLLECTION_BY_SENSOR } from "../constants";
 import { usePlatforms } from "../hooks/use-platforms";
 import { useSearchConditions } from "../hooks/use-search-conditions";
@@ -43,12 +43,14 @@ export function SceneFilterPanel({
 }) {
   const [params, setParams] = useSearchConditions();
   const platformsByCollection = usePlatforms().data ?? {};
+
   // 슬라이더는 놓을 때만 URL에 반영한다. 드래그 중 매번 검색하지 않게.
   const [cloudDraft, setCloudDraft] = useState<number | null>(null);
   const cloud = cloudDraft ?? params.cloud;
 
   const platformsOf = (s: Sensor) =>
     platformsByCollection[COLLECTION_BY_SENSOR[s]] ?? [];
+
   const toggleSensor = (s: Sensor, on: boolean) => {
     const hidden = new Set(on ? [] : platformsOf(s));
     setParams({
@@ -59,6 +61,7 @@ export function SceneFilterPanel({
       platforms: params.platforms.filter((p) => !hidden.has(p)),
     });
   };
+
   const togglePlatform = (p: string, on: boolean) =>
     setParams({
       platforms: on
@@ -70,8 +73,7 @@ export function SceneFilterPanel({
   const platformOptions = params.sensors.flatMap(platformsOf);
   const hasAoi = aois.some((a) => a.id === params.aoi);
   const sort = params.sort === "coverage" && !hasAoi ? "latest" : params.sort;
-  const from = toDateString(params.from);
-  const to = toDateString(params.to);
+  const { from, to } = params;
 
   return (
     <form
@@ -120,17 +122,15 @@ export function SceneFilterPanel({
               mode="range"
               locale={ko}
               resetOnSelect
-              defaultMonth={
-                params.from ? utcToLocalDay(params.from) : undefined
-              }
+              defaultMonth={from ? dayToDate(from) : undefined}
               selected={{
-                from: params.from ? utcToLocalDay(params.from) : undefined,
-                to: params.to ? utcToLocalDay(params.to) : undefined,
+                from: from ? dayToDate(from) : undefined,
+                to: to ? dayToDate(to) : undefined,
               }}
               onSelect={(r) =>
                 setParams({
-                  from: r?.from ? localToUtcDay(r.from) : null,
-                  to: r?.to ? localToUtcDay(r.to) : null,
+                  from: r?.from ? dateToDay(r.from) : null,
+                  to: r?.to ? dateToDay(r.to) : null,
                 })
               }
             />

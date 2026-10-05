@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { toDateString } from "@/lib/date";
 import { useSceneSearch } from "../hooks/use-scene-search";
 import { useSearchConditions } from "../hooks/use-search-conditions";
 import { toSearchBody } from "../lib/search-body";
@@ -14,15 +13,14 @@ export function Explore({ aois }: { aois: Aoi[] }) {
   const [params] = useSearchConditions();
   const aoi = aois.find((a) => a.id === params.aoi) ?? null;
 
-  const result = useMemo(() => {
-    const { from, to, ...rest } = params;
-    return toSearchBody(
-      { ...rest, from: toDateString(from), to: toDateString(to) },
-      aoi?.geometry ?? null,
-    );
-  }, [params, aoi]);
+  const result = useMemo(
+    () => toSearchBody(params, aoi?.geometry ?? null),
+    [params, aoi],
+  );
+
   const blocked = result.ok ? null : result.reason;
   const search = useSceneSearch(result.ok ? result.body : null);
+
   const scenes = useMemo(
     () => search.data?.pages.flatMap((p) => p.features) ?? [],
     [search.data],

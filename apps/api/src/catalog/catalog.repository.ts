@@ -15,9 +15,7 @@ import { buildSearchSql } from './search.sql.js';
 // 저장소를 갈아 끼우는 자리. 16단계에서 성능을 바꿀 때 이 구현만 건드린다.
 // abstract class라서 Nest DI 토큰으로도 쓴다.
 export abstract class CatalogRepository {
-  abstract saveAll(
-    scenes: Scene[],
-  ): Promise<{ rejected: { id: string; reason: string }[] }>;
+  abstract saveAll(scenes: Scene[]): Promise<void>;
   abstract findById(id: string): Promise<Scene | null>;
   abstract validateAoi(aoi: Polygon | MultiPolygon): Promise<AoiCheck>;
   abstract search(q: SceneQuery): Promise<SearchResult>;
@@ -63,40 +61,23 @@ export class PostgisCatalogRepository extends CatalogRepository {
   }
 
   async saveAll(scenes: Scene[]) {
-    if (scenes.length === 0) return { rejected: [] };
-
-    // 손으로 짠 polygon.ts는 링 하나만 본다. 구멍 위치나 폴리곤 겹침은 DB에 묻는다.
-    const shapes = JSON.stringify(
-      scenes.map((s) => ({ id: s.id, footprint: JSON.stringify(s.footprint) })),
-    );
-    const rejected = await this.prisma.$queryRaw<
-      { id: string; reason: string }[]
-    >(sql`
-      SELECT r.id, ST_IsValidReason(x.g) AS reason
-      FROM jsonb_to_recordset(${shapes}::jsonb) AS r(id text, footprint text),
-           LATERAL (SELECT ST_SetSRID(ST_GeomFromGeoJSON(r.footprint), 4326) AS g) x
-      WHERE NOT ST_IsValid(x.g)`);
-    const bad = new Set(rejected.map((r) => r.id));
-
     const rows = JSON.stringify(
-      scenes
-        .filter((s) => !bad.has(s.id))
-        .map((s) => ({
-          id: s.id,
-          group_key: s.groupKey,
-          collection: s.collection,
-          sensor: s.sensor,
-          platform: s.platform,
-          acquired_at: s.acquiredAt.toISOString(),
-          cloud_cover: s.cloudCover,
-          gsd_m: s.gsdM,
-          footprint: JSON.stringify(s.footprint),
-          thumbnail_url: s.thumbnailUrl,
-          updated_at: s.updatedAt?.toISOString() ?? null,
-          stac: s.stac,
-        })),
+      scenes.map((s) => ({
+        id: s.id,
+        group_key: s.groupKey,
+        collection: s.collection,
+        sensor: s.sensor,
+        platform: s.platform,
+        acquired_at: s.acquiredAt.toISOString(),
+        cloud_cover: s.cloudCover,
+        gsd_m: s.gsdM,
+        footprint: JSON.stringify(s.footprint),
+        thumbnail_url: s.thumbnailUrl,
+        updated_at: s.updatedAt?.toISOString() ?? null,
+        stac: s.stac,
+      })),
     );
-    // updated가 더 늦을 때만 덮어쓴다. 재시작해도 결과가 같고 6단계 수집도 이 문장을 쓴다.
+    // items.json이 기준이다. 재시작하면 같은 id는 파일 내용으로 덮어쓴다.
     await this.prisma.$executeRaw(sql`
       INSERT INTO scene (id, group_key, collection, sensor, platform, acquired_at, cloud_cover, gsd_m, footprint, thumbnail_url, updated_at, stac)
       SELECT id, group_key, collection, sensor::"Sensor", platform, acquired_at, cloud_cover, gsd_m,
@@ -108,9 +89,7 @@ export class PostgisCatalogRepository extends CatalogRepository {
       ON CONFLICT (id) DO UPDATE SET
         (group_key, collection, sensor, platform, acquired_at, cloud_cover, gsd_m, footprint, thumbnail_url, updated_at, stac)
         = (excluded.group_key, excluded.collection, excluded.sensor, excluded.platform, excluded.acquired_at,
-           excluded.cloud_cover, excluded.gsd_m, excluded.footprint, excluded.thumbnail_url, excluded.updated_at, excluded.stac)
-      WHERE excluded.updated_at > coalesce(scene.updated_at, '-infinity')`);
-    return { rejected };
+           excluded.cloud_cover, excluded.gsd_m, excluded.footprint, excluded.thumbnail_url, excluded.updated_at, excluded.stac)`);
   }
 
   async findById(id: string): Promise<Scene | null> {
@@ -128,7 +107,10 @@ export class PostgisCatalogRepository extends CatalogRepository {
       acquiredAt: r.acquired_at,
       cloudCover: r.cloud_cover,
       gsdM: r.gsd_m,
-      footprint: toOriginalType(JSON.parse(r.footprint) as MultiPolygon, r.stac),
+      footprint: toOriginalType(
+        JSON.parse(r.footprint) as MultiPolygon,
+        r.stac,
+      ),
       thumbnailUrl: r.thumbnail_url,
       updatedAt: r.updated_at,
       stac: r.stac,

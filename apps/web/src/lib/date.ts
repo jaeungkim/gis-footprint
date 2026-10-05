@@ -1,16 +1,24 @@
-// parseAsIsoDate는 YYYY-MM-DD를 UTC 자정 Date로 읽는다. 다시 날짜 문자열로.
-export const toDateString = (d: Date | null) =>
-  d ? d.toISOString().slice(0, 10) : null;
+// 날짜는 YYYY-MM-DD 문자열로 다닌다. Date는 달력 컴포넌트 경계에서만 쓴다.
 
-// 달력은 로컬 자정 Date를 쓴다. URL 값(UTC 자정)과 날짜만 맞춰 오간다.
-export const utcToLocalDay = (d: Date) =>
-  new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-export const localToUtcDay = (d: Date) =>
-  new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+// 달력은 로컬 자정 Date를 주고받는다.
+export const dayToDate = (day: string) => {
+  const [y, m, d] = day.split("-").map(Number);
 
+  return new Date(y, m - 1, d);
+};
+
+export const dateToDay = (date: Date) =>
+  [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+
+// 화면 표시는 전부 한국 시간
 const kst = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
   dateStyle: "medium",
   timeStyle: "short",
 });
+
 export const formatKst = (iso: string) => kst.format(new Date(iso));
