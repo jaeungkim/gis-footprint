@@ -4,10 +4,8 @@ import { ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
 import type { Env } from '../config/env.js';
 import { CatalogRepository } from '../catalog/catalog.repository.js';
 import type { CollectionStat } from '../catalog/interfaces/scene-query.interface.js';
-import {
-  CollectionsSnapshot,
-  type StacCollection,
-} from './collections.snapshot.js';
+import { CollectionsSnapshot } from './collections.snapshot.js';
+import type { StacCollection } from './interfaces/stac.interface.js';
 import {
   collectionHref,
   href,

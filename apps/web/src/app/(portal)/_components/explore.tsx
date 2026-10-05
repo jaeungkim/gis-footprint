@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { useSceneSearch } from "../hooks/use-scene-search";
-import { useSearchConditions } from "../hooks/use-search-conditions";
-import { toSearchBody } from "../lib/search-body";
-import type { Aoi } from "../types";
+import { useSceneSearch } from "../_hooks/use-scene-search";
+import { useSearchConditions } from "../_hooks/use-search-conditions";
+import { toSearchBody } from "../_lib/search-body";
+import type { Aoi } from "../_lib/types";
 import { SceneFilterPanel } from "./scene-filter-panel";
 import { SceneList } from "./scene-list";
 import { SceneMap } from "./scene-map";

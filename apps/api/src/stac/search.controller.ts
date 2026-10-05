@@ -12,7 +12,7 @@ import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
 import { parseOrThrow } from '../common/zod-problem.js';
 import { GEOJSON } from './links.js';
-import { queryToBody, searchBodySchema } from './search-request.schema.js';
+import { queryToBody, searchBodySchema } from './dto/search-request.dto.js';
 import { SearchService } from './search.service.js';
 
 // Swagger용. 재귀 CQL2 스키마는 JSON Schema로 내면 definitions가 생겨 web의 타입 생성이 못 풀어서

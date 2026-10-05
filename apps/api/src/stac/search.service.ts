@@ -4,13 +4,14 @@ import type { Env } from '../config/env.js';
 import { CatalogRepository } from '../catalog/catalog.repository.js';
 import { cql2ToSql } from './cql2/cql2-to-sql.js';
 import { toStacItem } from './item.js';
-import { GEOJSON, href, rootLink, STAC_PATH, type StacLink } from './links.js';
+import { GEOJSON, href, rootLink, STAC_PATH } from './links.js';
 import {
   DEFAULT_LIMIT,
   parseDatetime,
   resolveAoi,
   type SearchBody,
-} from './search-request.schema.js';
+} from './dto/search-request.dto.js';
+import type { ItemCollection, StacLink } from './interfaces/stac.interface.js';
 import { resolveSort } from './sortby.js';
 import { conditionHash, decodeToken, encodeToken } from './token.js';
 
@@ -18,15 +19,6 @@ import { conditionHash, decodeToken, encodeToken } from './token.js';
 export type SearchOrigin =
   | { method: 'POST'; body: SearchBody }
   | { method: 'GET'; query: Record<string, unknown> };
-
-export interface ItemCollection {
-  type: 'FeatureCollection';
-  stac_version: '1.0.0';
-  features: Record<string, unknown>[];
-  numberMatched: number;
-  numberReturned: number;
-  links: StacLink[];
-}
 
 @Injectable()
 export class SearchService {

@@ -10,8 +10,8 @@ import {
   JSON_TYPE,
   rootLink,
   STAC_PATH,
-  type StacLink,
 } from './links.js';
+import type { StacLink } from './interfaces/stac.interface.js';
 import { queryablesSchema, sortablesSchema } from './queryables.js';
 
 // cql2-text는 광고하지 않는다. GET에서 filter를 쓰려면 filter-lang=cql2-json을 같이 보내야 한다.

@@ -4,10 +4,10 @@ import { cn } from "cn";
 import { ImageOff, Radar } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { formatKst } from "@/lib/date";
-import { COLLECTION_BY_SENSOR } from "../constants";
-import { useSelection } from "../hooks/use-selection";
-import { platformLabel } from "../lib/format";
-import type { StacItem } from "../types";
+import { COLLECTION_BY_SENSOR } from "../_lib/constants";
+import { useSelection } from "../_hooks/use-selection";
+import { platformLabel } from "../_lib/format";
+import type { StacItem } from "../_lib/types";
 
 export function SceneCard({
   scene,

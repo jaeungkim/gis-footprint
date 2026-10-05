@@ -38,6 +38,7 @@ apps/api/src
   health/      GET /api/health
   catalog/     Scene storage (CatalogRepository), startup load, GET /api/scenes/:id
   stac/        STAC API (/api/stac/*) on top of CatalogRepository
+               dto/ holds the zod search body (schema + inferred type, as in the Nest validation docs)
   generated/   Prisma client (gitignored)
 ```
 
@@ -68,24 +69,25 @@ This creates a migration in `apps/api/prisma/migrations` (commit it), applies it
 
 ## Web layout
 
-Next.js leaves project organization open. This app keeps project files outside `app/` (the docs' "store project files outside of app" strategy) and splits them by feature. Folder names follow the shadcn aliases in `components.json` (`components`, `ui`, `lib`, `hooks`).
+Next.js leaves project organization open. This app follows the docs' "split project files by feature or route" strategy: code shared across routes lives in top-level folders under `src/`, and code used by one route is colocated in that route segment under private `_folders` (opted out of routing). Shared folder names follow the shadcn aliases in `components.json` (`components`, `ui`, `lib`, `hooks`).
 
 ```
 apps/web/src
-  app/              routing only: layouts, pages, error/not-found, providers
+  app/
+    layout.tsx, providers.tsx, error.tsx, not-found.tsx
+    (portal)/         route group for the main shell, not in the URL
+      layout.tsx, page.tsx
+      _components/    route UI (explore, scene list/map/filters)
+      _hooks/         URL state, server queries, client stores
+      _lib/           pure logic, server-side loaders, types, constants
   components/
-    ui/             shadcn primitives (added with `shadcn add`)
-    layout/         app shell (site header)
-  hooks/            hooks shared across features (use-maplibre: base map + theme style)
-  lib/              framework-free helpers (api client + generated schema, geo, date)
-  features/<name>/
-    components/     feature UI
-    hooks/          URL state, server queries, client stores
-    lib/            pure logic and server-side loaders
-    types.ts, constants.ts
+    ui/               shadcn primitives (added with `shadcn add`)
+    layout/           app shell (site header)
+  hooks/              hooks shared across routes (use-maplibre: base map + theme style)
+  lib/                framework-free helpers (api client + generated schema, geo, date)
 ```
 
-A feature imports from shared folders, never from another feature. Pages in `app/` compose features.
+Route code imports from shared folders, never from another route's private folders. Promote code to a shared folder once a second route needs it.
 
 ## API types
 

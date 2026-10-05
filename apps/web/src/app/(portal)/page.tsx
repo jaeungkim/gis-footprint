@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { Explore } from "@/features/catalog/components/explore";
-import { loadSampleAois } from "@/features/catalog/lib/sample-aois";
+import { Explore } from "./_components/explore";
+import { loadSampleAois } from "./_lib/sample-aois";
 
 export default async function ExplorePage() {
   const aois = await loadSampleAois();

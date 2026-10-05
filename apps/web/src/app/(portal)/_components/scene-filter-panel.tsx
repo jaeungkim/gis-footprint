@@ -20,11 +20,11 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { dateToDay, dayToDate } from "@/lib/date";
-import { COLLECTION_BY_SENSOR } from "../constants";
-import { usePlatforms } from "../hooks/use-platforms";
-import { useSearchConditions } from "../hooks/use-search-conditions";
-import { platformLabel } from "../lib/format";
-import type { Aoi, BlockReason, Sensor } from "../types";
+import { COLLECTION_BY_SENSOR } from "../_lib/constants";
+import { usePlatforms } from "../_hooks/use-platforms";
+import { useSearchConditions } from "../_hooks/use-search-conditions";
+import { platformLabel } from "../_lib/format";
+import type { Aoi, BlockReason, Sensor } from "../_lib/types";
 
 const SENSORS: { value: Sensor; label: string }[] = [
   { value: "eo", label: "광학 (EO)" },

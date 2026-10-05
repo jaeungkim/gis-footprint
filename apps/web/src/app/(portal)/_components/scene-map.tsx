@@ -9,8 +9,8 @@ import type {
 import { useEffect, useRef } from "react";
 import { useMaplibre } from "@/hooks/use-maplibre";
 import { bboxOf, type PolygonGeometry } from "@/lib/geo";
-import { useSelection } from "../hooks/use-selection";
-import type { StacItem } from "../types";
+import { useSelection } from "../_hooks/use-selection";
+import type { StacItem } from "../_lib/types";
 
 const COLOR = { scene: "#3b82f6", selected: "#f97316", aoi: "#e11d48" };
 

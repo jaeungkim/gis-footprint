@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { ItemCollection, SearchBody } from "../types";
+import type { ItemCollection, SearchBody } from "../_lib/types";
 
 type Problem = { title?: string; detail?: string };
 

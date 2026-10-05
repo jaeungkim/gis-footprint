@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import type { useSceneSearch } from "../hooks/use-scene-search";
-import type { BlockReason, StacItem } from "../types";
+import type { useSceneSearch } from "../_hooks/use-scene-search";
+import type { BlockReason, StacItem } from "../_lib/types";
 import { SceneCard } from "./scene-card";
 
 export function SceneList({

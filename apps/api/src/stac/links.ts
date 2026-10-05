@@ -1,13 +1,4 @@
-// STAC Link. href는 전부 STAC_PUBLIC_URL + 경로의 절대 URL이다(클라이언트가 그대로 요청한다).
-export interface StacLink {
-  rel: string;
-  href: string;
-  type?: string;
-  title?: string;
-  method?: 'GET' | 'POST';
-  body?: unknown;
-  merge?: boolean;
-}
+import type { StacLink } from './interfaces/stac.interface.js';
 
 export const STAC_PATH = '/api/stac';
 export const GEOJSON = 'application/geo+json';

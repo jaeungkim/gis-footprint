@@ -1,10 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { dataFile } from '../config/data-file.js';
+import type { StacCollection } from './interfaces/stac.interface.js';
 
 const COLLECTIONS_FILE = dataFile('catalog/collections.json');
-
-export type StacCollection = { id: string } & Record<string, unknown>;
 
 // Earth Search Collection 스냅샷. title, description, license, item_assets 등을 손으로 쓰지 않는다.
 // extent와 summaries의 platform/gsd는 응답할 때 DB 집계로 덮는다.
