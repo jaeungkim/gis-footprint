@@ -25,17 +25,6 @@ STAC Item은 받은 그대로고 용량 때문에 `-jp2` asset만 뺐다. 그래
 | 부산 북항 (SAR) | `S1C_..._20260727T212357_...`, `S1C_..._20260808T212357_...` |
 | 평택당진항 (SAR) | `S1C_..._20260813T213146_...`, `S1C_..._20260825T213139_...` |
 
-## 다시 만들기
-
-```bash
-node scripts/fetch-catalog.mjs
-python3 -m venv .venv && .venv/bin/pip install rasterio shapely
-.venv/bin/python scripts/fetch-cogs.py
-.venv/bin/pip install certifi && .venv/bin/python scripts/fetch-sar-cogs.py
-curl -L -o /tmp/hjd.geojson https://raw.githubusercontent.com/vuski/admdongkor/master/ver20260701/HangJeongDong_ver20260701.geojson
-.venv/bin/python scripts/build-sigungu.py /tmp/hjd.geojson
-```
-
 ## 출처 표시
 
 - Sentinel 데이터: Contains modified Copernicus Sentinel data 2026. 메타데이터는 Element 84 Earth Search.

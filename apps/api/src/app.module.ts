@@ -10,7 +10,6 @@ import { StacModule } from './stac/stac.module.js';
 
 @Module({
   imports: [
-    // Loads apps/api/.env (if present) and validates it with the zod schema.
     ConfigModule.forRoot({ isGlobal: true, validationSchema: envSchema }),
     PrismaModule,
     HealthModule,

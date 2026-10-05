@@ -37,7 +37,6 @@ export const QUERYABLES: Record<string, Queryable> = {
 
 export const QUERYABLE_NAMES = Object.keys(QUERYABLES) as [string, ...string[]];
 
-// sortby 필드 → 리포지토리 정렬 키
 export const SORTABLES: Record<string, SortKey> = {
   id: 'id',
   'properties.datetime': 'datetime',

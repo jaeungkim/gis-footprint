@@ -6,7 +6,6 @@ import { type StacItem, toScene } from './stac-item/to-scene.js';
 
 const CATALOG_FILE = dataFile('catalog/items.json');
 
-// 서버가 요청을 받기 전에 items.json을 DB에 넣는다.
 @Injectable()
 export class CatalogLoader implements OnModuleInit {
   private readonly logger = new Logger(CatalogLoader.name);

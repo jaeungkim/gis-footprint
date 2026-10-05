@@ -13,8 +13,5 @@ coverage
 # Prisma client (generated on install)
 apps/api/src/generated
 
-# Python venv for scripts/
-.venv
-
 # AI-generated specs and plans stay local
 .internal/

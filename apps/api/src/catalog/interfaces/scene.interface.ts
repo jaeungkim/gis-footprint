@@ -5,7 +5,7 @@ export type Sensor = 'EO' | 'SAR';
 export interface Scene {
   id: string;
   groupKey: string; // 처리 번호를 뺀 id. 재처리본(_0_, _1_)이 같은 값을 가진다
-  collection: string; // STAC collection id
+  collection: string;
   sensor: Sensor;
   platform: string;
   acquiredAt: Date;
