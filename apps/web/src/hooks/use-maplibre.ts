@@ -6,6 +6,7 @@ import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
 const KOREA_CENTER: [number, number] = [127.8, 36.3];
+
 const STYLE = {
   light: "https://tiles.openfreemap.org/styles/liberty",
   dark: "https://tiles.openfreemap.org/styles/dark",
@@ -20,6 +21,7 @@ export function useMaplibre(
   const mapRef = useRef<Map | null>(null);
   const handleStyleLoad = useEffectEvent(onStyleLoad);
   const { resolvedTheme } = useTheme();
+
   const style = resolvedTheme === "dark" ? STYLE.dark : STYLE.light;
   const appliedStyleRef = useRef(style);
 
@@ -30,9 +32,11 @@ export function useMaplibre(
       center: KOREA_CENTER,
       zoom: 6,
     });
+
     map.addControl(new NavigationControl(), "top-right");
     map.on("style.load", () => handleStyleLoad(map));
     mapRef.current = map;
+
     return () => {
       map.remove();
       mapRef.current = null;

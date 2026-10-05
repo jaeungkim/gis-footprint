@@ -79,7 +79,11 @@ export function sortablesSchema(id: string) {
       SORTABLE_NAMES.map((name) => [
         name,
         name === 'properties.aoi:coverage_pct'
-          ? { type: 'number', description: 'AOI 대비 커버리지 (%). intersects나 bbox가 있을 때만' }
+          ? {
+              type: 'number',
+              description:
+                'AOI 대비 커버리지 (%). intersects나 bbox가 있을 때만',
+            }
           : {},
       ]),
     ),

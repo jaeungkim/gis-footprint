@@ -19,10 +19,12 @@ const eq = (property: string, v: unknown): Cql2 => ({
   op: "=",
   args: [{ property }, v],
 });
+
 const le = (property: string, v: unknown): Cql2 => ({
   op: "<=",
   args: [{ property }, v],
 });
+
 const anyOf = (xs: Cql2[]): Cql2 =>
   xs.length === 1 ? xs[0] : { op: "or", args: xs };
 
@@ -41,6 +43,7 @@ export function toSearchBody(
     sortby: SORTBY[c.sort === "coverage" && !aoi ? "latest" : c.sort],
     limit: PAGE_SIZE,
   };
+
   if (aoi) body.intersects = aoi;
   if (c.from || c.to) {
     const from = c.from ? `${c.from}T00:00:00+09:00` : "..";
@@ -49,6 +52,7 @@ export function toSearchBody(
   }
 
   const filters: Cql2[] = [];
+
   if (c.cloud < 100 && c.sensors.includes("eo")) {
     const cloud = le("eo:cloud_cover", c.cloud);
     // SAR는 운량이 null이라 CQL2 비교에서 떨어진다. 같이 고른 SAR는 살린다.
@@ -58,9 +62,11 @@ export function toSearchBody(
         : cloud,
     );
   }
+
   if (c.platforms.length > 0)
     filters.push(anyOf(c.platforms.map((p) => eq("platform", p))));
   if (c.gsd !== null) filters.push(le("gsd", c.gsd));
+
   if (filters.length > 0)
     body.filter =
       filters.length === 1 ? filters[0] : { op: "and", args: filters };

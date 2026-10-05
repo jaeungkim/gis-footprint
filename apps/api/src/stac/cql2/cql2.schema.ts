@@ -5,9 +5,11 @@ import { QUERYABLE_NAMES } from '../queryables.js';
 export const MAX_ARGS = 20;
 
 const propertyRef = z.strictObject({ property: z.enum(QUERYABLE_NAMES) });
+
 const timestampLiteral = z.strictObject({
   timestamp: z.iso.datetime({ offset: true }),
 });
+
 const literal = z.union([z.string(), z.number(), timestampLiteral]);
 const operand = z.union([propertyRef, literal]);
 

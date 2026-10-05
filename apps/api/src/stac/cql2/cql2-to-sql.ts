@@ -38,6 +38,7 @@ function walk(
   budget: { literals: number },
 ): Prisma.Sql {
   if (depth > MAX_DEPTH) bad(`깊이 ${MAX_DEPTH} 초과`);
+
   switch (e.op) {
     case 'and':
     case 'or': {
@@ -53,11 +54,14 @@ function walk(
       const refs = e.args.filter(isRef);
       if (refs.length === 2) bad('속성끼리 비교는 지원하지 않음');
       if (refs.length === 0) bad('리터럴끼리 비교는 지원하지 않음');
+
       const ref = refs[0];
       const lit = (isRef(a) ? b : a) as Literal;
       const q = QUERYABLES[ref.property];
       const value = literalValue(q.type, lit, ref.property);
-      if (++budget.literals > MAX_LITERALS) bad(`리터럴 ${MAX_LITERALS}개 초과`);
+      if (++budget.literals > MAX_LITERALS)
+        bad(`리터럴 ${MAX_LITERALS}개 초과`);
+
       return isRef(a)
         ? sql`(${q.column} ${OPS[e.op]} ${value})`
         : sql`(${value} ${OPS[e.op]} ${q.column})`;
@@ -75,7 +79,10 @@ function literalValue(
     bad(`${property}에는 {"timestamp": "..."} 리터럴이 필요함`);
   }
   if (typeof lit === 'object') bad(`${property}는 timestamp 속성이 아님`);
-  if (type === 'string' && typeof lit !== 'string') bad(`${property}는 문자열이어야 함`);
-  if (type === 'number' && typeof lit !== 'number') bad(`${property}는 숫자여야 함`);
+  if (type === 'string' && typeof lit !== 'string')
+    bad(`${property}는 문자열이어야 함`);
+  if (type === 'number' && typeof lit !== 'number')
+    bad(`${property}는 숫자여야 함`);
+
   return lit;
 }

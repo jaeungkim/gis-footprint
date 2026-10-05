@@ -22,10 +22,13 @@ export function parseSortbyParam(s: string): SortbyItem[] {
 
 // 기본은 최신순. id가 없으면 끝에 id desc를 붙여 전순서(커서용)를 만든다.
 export function resolveSort(items: SortbyItem[] | undefined): SortSpec[] {
-  const requested = items ?? [{ field: 'properties.datetime', direction: 'desc' }];
+  const requested = items ?? [
+    { field: 'properties.datetime', direction: 'desc' },
+  ];
   if (requested.length > MAX_SORT_FIELDS) {
     throw new BadRequestException(`sortby: 최대 ${MAX_SORT_FIELDS}개`);
   }
+
   const specs: SortSpec[] = requested.map(({ field, direction }) => {
     const key = SORTABLES[field];
     if (!key) {
@@ -33,8 +36,12 @@ export function resolveSort(items: SortbyItem[] | undefined): SortSpec[] {
         `sortby: 정렬할 수 없는 필드 ${field} (가능: ${SORTABLE_NAMES.join(', ')})`,
       );
     }
+
     return { key, dir: direction };
   });
-  if (!specs.some((s) => s.key === 'id')) specs.push({ key: 'id', dir: 'desc' });
+
+  if (!specs.some((s) => s.key === 'id'))
+    specs.push({ key: 'id', dir: 'desc' });
+
   return specs;
 }

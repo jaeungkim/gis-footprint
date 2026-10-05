@@ -77,6 +77,7 @@ export class PostgisCatalogRepository extends CatalogRepository {
         stac: s.stac,
       })),
     );
+
     // items.json이 기준이다. 재시작하면 같은 id는 파일 내용으로 덮어쓴다.
     await this.prisma.$executeRaw(sql`
       INSERT INTO scene (id, group_key, collection, sensor, platform, acquired_at, cloud_cover, gsd_m, footprint, thumbnail_url, updated_at, stac)
@@ -97,7 +98,9 @@ export class PostgisCatalogRepository extends CatalogRepository {
       SELECT id, group_key, collection, sensor, platform, acquired_at, cloud_cover, gsd_m,
              ST_AsGeoJSON(footprint) AS footprint, thumbnail_url, updated_at, stac
       FROM scene WHERE id = ${id}`);
+
     if (!r) return null;
+
     return {
       id: r.id,
       groupKey: r.group_key,
@@ -124,6 +127,7 @@ export class PostgisCatalogRepository extends CatalogRepository {
       SELECT ST_IsValid(g) AS valid, ST_IsValidReason(g) AS reason,
              CASE WHEN ST_IsValid(g) THEN ST_Area(g::geography) ELSE 0 END AS area
       FROM (SELECT ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(aoi)}), 4326) AS g) t`);
+
     if (!r.valid) return { valid: false, reason: r.reason };
     if (!(r.area > 0)) return { valid: false, reason: '면적이 0' };
     return { valid: true };
@@ -131,6 +135,7 @@ export class PostgisCatalogRepository extends CatalogRepository {
 
   async search(q: SceneQuery): Promise<SearchResult> {
     const rows = await this.prisma.$queryRaw<SearchRow[]>(buildSearchSql(q));
+
     const hasMore = rows.length > q.limit;
     const page = hasMore ? rows.slice(0, q.limit) : rows;
     return {
@@ -175,6 +180,7 @@ export class PostgisCatalogRepository extends CatalogRepository {
                array_agg(DISTINCT gsd_m ORDER BY gsd_m) AS gsds
         FROM scene GROUP BY collection) t
       ORDER BY collection`);
+
     return rows.map((r) => ({
       collection: r.collection,
       bbox: [r.xmin, r.ymin, r.xmax, r.ymax],

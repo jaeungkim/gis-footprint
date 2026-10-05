@@ -39,13 +39,18 @@ export class SearchService {
     this.base = config.get('STAC_PUBLIC_URL', { infer: true });
   }
 
-  async search(body: SearchBody, origin: SearchOrigin): Promise<ItemCollection> {
+  async search(
+    body: SearchBody,
+    origin: SearchOrigin,
+  ): Promise<ItemCollection> {
     const aoi = resolveAoi(body);
     if (aoi) {
       // 구조는 resolveAoi가 봤고, 위상(구멍 위치, 겹침, 면적 0)은 DB가 본다. 무효면 ST_Intersection이 500을 낸다.
       const check = await this.catalog.validateAoi(aoi);
-      if (!check.valid) throw new BadRequestException(`AOI 무효: ${check.reason}`);
+      if (!check.valid)
+        throw new BadRequestException(`AOI 무효: ${check.reason}`);
     }
+
     const datetime = body.datetime ? parseDatetime(body.datetime) : null;
     const sort = resolveSort(body.sortby);
     if (!aoi && sort.some((s) => s.key === 'aoi:coverage_pct')) {
@@ -53,6 +58,7 @@ export class SearchService {
         'sortby: properties.aoi:coverage_pct는 intersects나 bbox가 있어야 함',
       );
     }
+
     const predicate = body.filter ? cql2ToSql(body.filter) : null;
     const collections = body.collections ?? [];
     const ids = body.ids ?? [];
@@ -66,11 +72,14 @@ export class SearchService {
       filter: body.filter ?? null,
       sort,
     });
+
     let after: (string | number)[] | null = null;
     if (body.token) {
       const token = decodeToken(body.token);
       if (!token || token.h !== hash || token.k.length !== sort.length) {
-        throw new BadRequestException('token: 이 검색 조건의 토큰이 아니거나 깨짐');
+        throw new BadRequestException(
+          'token: 이 검색 조건의 토큰이 아니거나 깨짐',
+        );
       }
       after = token.k;
     }
@@ -93,9 +102,13 @@ export class SearchService {
       rootLink(this.base),
     ];
     if (hasMore) {
-      const token = encodeToken({ k: rows[rows.length - 1].sortValues, h: hash });
+      const token = encodeToken({
+        k: rows[rows.length - 1].sortValues,
+        h: hash,
+      });
       links.push(nextLink(origin, searchHref, token));
     }
+
     return {
       type: 'FeatureCollection',
       stac_version: '1.0.0',
@@ -108,7 +121,11 @@ export class SearchService {
 }
 
 // POST는 원래 본문 전체 + token을 body에(merge: false), GET은 쿼리 문자열에 token을 붙인 href.
-function nextLink(origin: SearchOrigin, searchHref: string, token: string): StacLink {
+function nextLink(
+  origin: SearchOrigin,
+  searchHref: string,
+  token: string,
+): StacLink {
   if (origin.method === 'POST') {
     return {
       rel: 'next',
@@ -119,10 +136,16 @@ function nextLink(origin: SearchOrigin, searchHref: string, token: string): Stac
       body: { ...origin.body, token },
     };
   }
+
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(origin.query)) {
     if (k !== 'token' && typeof v === 'string') params.set(k, v);
   }
   params.set('token', token);
-  return { rel: 'next', href: `${searchHref}?${params.toString()}`, type: GEOJSON };
+
+  return {
+    rel: 'next',
+    href: `${searchHref}?${params.toString()}`,
+    type: GEOJSON,
+  };
 }

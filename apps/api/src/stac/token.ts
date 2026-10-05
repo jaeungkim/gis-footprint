@@ -20,6 +20,7 @@ export function decodeToken(s: string): TokenPayload | null {
     if (!k.every((x) => typeof x === 'string' || typeof x === 'number')) {
       return null;
     }
+
     return { k: k as (string | number)[], h };
   } catch {
     return null;
@@ -38,10 +39,12 @@ export function stableStringify(v: unknown): string {
   if (Array.isArray(v)) return `[${v.map(stableStringify).join(',')}]`;
   if (typeof v === 'object' && v !== null) {
     const o = v as Record<string, unknown>;
+
     return `{${Object.keys(o)
       .sort()
       .map((k) => `${JSON.stringify(k)}:${stableStringify(o[k])}`)
       .join(',')}}`;
   }
+
   return JSON.stringify(v) ?? 'null';
 }

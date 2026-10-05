@@ -25,12 +25,14 @@ export function SceneList({
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || !hasNextPage) return;
+
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !isFetchingNextPage) fetchNextPage();
       },
       { root: rootRef.current, rootMargin: "200px" },
     );
+
     io.observe(el);
     return () => io.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
@@ -74,6 +76,7 @@ export function SceneList({
   }
 
   const matched = search.data?.pages[0]?.numberMatched;
+
   return (
     <section
       ref={rootRef}

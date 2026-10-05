@@ -25,6 +25,7 @@ const scenesData = (
     properties: { id: s.id },
   })),
 });
+
 const aoiData = (
   aoi: PolygonGeometry | null,
 ): GeoJSONSourceSpecification["data"] => ({
@@ -66,10 +67,12 @@ export function SceneMap({
       data: scenesData(dataRef.current.scenes),
       promoteId: "id",
     });
+
     map.addSource("aoi", {
       type: "geojson",
       data: aoiData(dataRef.current.aoi),
     });
+
     map.addLayer({
       id: "scene-fill",
       type: "fill",
@@ -87,6 +90,7 @@ export function SceneMap({
         ],
       },
     });
+
     map.addLayer({
       id: "scene-line",
       type: "line",
@@ -97,6 +101,7 @@ export function SceneMap({
         "line-opacity": ["case", state("selected"), 1, state("hover"), 1, 0.5],
       },
     });
+
     map.addLayer({
       id: "aoi-line",
       type: "line",
@@ -107,6 +112,7 @@ export function SceneMap({
         "line-dasharray": [2, 1],
       },
     });
+
     const { hoveredId, selectedId } = useSelection.getState();
     setState(map, hoveredId, "hover", true);
     setState(map, selectedId, "selected", true);
@@ -115,6 +121,7 @@ export function SceneMap({
   // 지도가 만들어진 뒤(useMaplibre의 effect 다음) 선택 상태와 마우스 이벤트를 잇는다.
   useEffect(() => {
     const map = mapRef.current!;
+
     const unsubscribe = useSelection.subscribe((s, prev) => {
       if (s.hoveredId !== prev.hoveredId) {
         setState(map, prev.hoveredId, "hover", false);
@@ -129,16 +136,19 @@ export function SceneMap({
     const idAt = (e: {
       features?: { properties: Record<string, unknown> }[];
     }) => (e.features?.[0]?.properties.id as string | undefined) ?? null;
+
     map.on("mousemove", "scene-fill", (e) => {
       map.getCanvas().style.cursor = "pointer";
       const id = idAt(e);
       if (id !== useSelection.getState().hoveredId)
         useSelection.getState().hover(id);
     });
+
     map.on("mouseleave", "scene-fill", () => {
       map.getCanvas().style.cursor = "";
       useSelection.getState().hover(null);
     });
+
     map.on("click", "scene-fill", (e) =>
       useSelection.getState().select(idAt(e), "map"),
     );
@@ -155,8 +165,10 @@ export function SceneMap({
 
   useEffect(() => {
     dataRef.current.aoi = aoi;
+
     const map = mapRef.current;
     if (!map) return;
+
     (map.getSource("aoi") as GeoJSONSource | undefined)?.setData(aoiData(aoi));
     if (aoi) map.fitBounds(bboxOf(aoi), { padding: 48, maxZoom: 13 });
   }, [mapRef, aoi]);

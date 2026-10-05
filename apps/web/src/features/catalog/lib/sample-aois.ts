@@ -6,6 +6,7 @@ import type { Aoi } from "../types";
 // 저장소에 있는 샘플 AOI. 서버 컴포넌트에서 빌드 때 한 번 읽는다.
 export async function loadSampleAois(): Promise<Aoi[]> {
   const file = path.join(process.cwd(), "../../data/aois.geojson");
+
   const fc = JSON.parse(await readFile(file, "utf8")) as {
     features: {
       id: string;
@@ -13,6 +14,7 @@ export async function loadSampleAois(): Promise<Aoi[]> {
       geometry: PolygonGeometry;
     }[];
   };
+
   return fc.features.map((f) => ({
     id: f.id,
     name: f.properties.name,

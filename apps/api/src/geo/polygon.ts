@@ -23,6 +23,7 @@ export function findPolygonError(
       return '링이 자기 교차함';
     }
   }
+
   return null;
 }
 
@@ -42,6 +43,7 @@ function selfIntersects(ring: Position[]): boolean {
       }
     }
   }
+
   return false;
 }
 
@@ -50,7 +52,9 @@ function segmentsTouch(a: Position, b: Position, c: Position, d: Position) {
   const d2 = cross(c, d, b);
   const d3 = cross(a, b, c);
   const d4 = cross(a, b, d);
+
   if (d1 * d2 < 0 && d3 * d4 < 0) return true;
+
   // 한 끝점이 다른 선분 위에 있는 경우
   return (
     (d1 === 0 && withinBox(c, d, a)) ||
@@ -98,6 +102,7 @@ function isClockwise(ring: Position[]): boolean {
   for (let i = 0; i < ring.length - 1; i++) {
     sum += (ring[i + 1][0] - ring[i][0]) * (ring[i + 1][1] + ring[i][1]);
   }
+
   return sum > 0;
 }
 
@@ -110,6 +115,7 @@ export function toOriginalType(
     typeof stac === 'object' && stac !== null && 'geometry' in stac
       ? (stac.geometry as { type?: string } | null)?.type
       : undefined;
+
   return original === 'Polygon' && multi.coordinates.length === 1
     ? { type: 'Polygon', coordinates: multi.coordinates[0] }
     : multi;

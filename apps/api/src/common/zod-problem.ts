@@ -9,6 +9,7 @@ export function parseOrThrow<T>(
 ): T {
   const result = schema.safeParse(input);
   if (result.success) return result.data;
+
   throw new BadRequestException({
     message: `${what} 검증 실패`,
     errors: result.error.issues.map((i) => ({

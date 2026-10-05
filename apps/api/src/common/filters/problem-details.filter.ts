@@ -34,12 +34,14 @@ export function toProblem(exception: unknown): Problem {
   if (!(exception instanceof HttpException)) {
     return { type: 'about:blank', title: 'Internal Server Error', status: 500 };
   }
+
   const status = exception.getStatus();
   const title = STATUS_CODES[status] ?? 'Error';
   const body = exception.getResponse();
   if (typeof body === 'string') {
     return { type: 'about:blank', title, status, detail: body };
   }
+
   const { message, errors } = body as {
     message?: unknown;
     errors?: Problem['errors'];
@@ -53,5 +55,6 @@ export function toProblem(exception: unknown): Problem {
     problem.errors = message.map((m) => ({ message: String(m) }));
   }
   if (errors) problem.errors = errors;
+
   return problem;
 }

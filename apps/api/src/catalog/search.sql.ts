@@ -1,5 +1,8 @@
 import { Prisma } from '../generated/prisma/client.js';
-import type { SceneQuery, SortSpec } from './interfaces/scene-query.interface.js';
+import type {
+  SceneQuery,
+  SortSpec,
+} from './interfaces/scene-query.interface.js';
 
 const { sql, join, empty } = Prisma;
 
@@ -20,12 +23,16 @@ export function sortKeyExpr(spec: SortSpec, hasAoi: boolean): Prisma.Sql {
         ? sql`coalesce(cloud_cover, 101)`
         : sql`coalesce(cloud_cover, -1)`;
     case 'aoi:coverage_pct':
-      if (!hasAoi) throw new Error('aoi:coverage_pct 정렬은 공간 조건이 필요함');
+      if (!hasAoi)
+        throw new Error('aoi:coverage_pct 정렬은 공간 조건이 필요함');
       return sql`inter_m2 / area_m2 * 100`;
   }
 }
 
-function cursorValue(spec: SortSpec, v: string | number): Date | string | number {
+function cursorValue(
+  spec: SortSpec,
+  v: string | number,
+): Date | string | number {
   return spec.key === 'datetime' ? new Date(v as number) : v;
 }
 
@@ -38,12 +45,16 @@ function cursorCondition(
   const clauses = sort.map((spec, i) => {
     const parts = sort
       .slice(0, i)
-      .map((s, j) => sql`${sortKeyExpr(s, hasAoi)} = ${cursorValue(s, after[j])}`);
+      .map(
+        (s, j) => sql`${sortKeyExpr(s, hasAoi)} = ${cursorValue(s, after[j])}`,
+      );
     parts.push(
       sql`${sortKeyExpr(spec, hasAoi)} ${AFTER[spec.dir]} ${cursorValue(spec, after[i])}`,
     );
+
     return sql`(${join(parts, ' AND ')})`;
   });
+
   return sql`(${join(clauses, ' OR ')})`;
 }
 
@@ -66,14 +77,18 @@ export function buildSearchSql(q: SceneQuery): Prisma.Sql {
     if ('at' in q.datetime) {
       picked.push(sql`s.acquired_at = ${q.datetime.at}`);
     } else {
-      if (q.datetime.from) picked.push(sql`s.acquired_at >= ${q.datetime.from}`);
+      if (q.datetime.from)
+        picked.push(sql`s.acquired_at >= ${q.datetime.from}`);
       if (q.datetime.to) picked.push(sql`s.acquired_at <= ${q.datetime.to}`);
     }
   }
 
   // AOI가 없으면 aoi CTE와 교차 식을 아예 뺀다. `aoi.g IS NULL OR ST_Intersects(...)`는 GiST를 못 탄다.
   const aoiCte = hasAoi
-    ? sql`aoi AS (SELECT g, ST_Area(g::geography) AS area_m2 FROM (SELECT ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(q.aoi)}), 4326) AS g) t),`
+    ? sql`aoi AS (
+        SELECT g, ST_Area(g::geography) AS area_m2
+        FROM (SELECT ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(q.aoi)}), 4326) AS g) t
+      ),`
     : empty;
   const fromAoi = hasAoi ? sql`, aoi` : empty;
   const inter = hasAoi
@@ -82,13 +97,16 @@ export function buildSearchSql(q: SceneQuery): Prisma.Sql {
   const area = hasAoi ? sql`aoi.area_m2` : sql`NULL::float8`;
 
   const sortCols = join(
-    q.sort.map((s, i) => sql`${sortKeyExpr(s, hasAoi)} AS ${Prisma.raw(`sort_${i}`)}`),
+    q.sort.map(
+      (s, i) => sql`${sortKeyExpr(s, hasAoi)} AS ${Prisma.raw(`sort_${i}`)}`,
+    ),
     ', ',
   );
   const orderBy = join(
     q.sort.map((s) => sql`${sortKeyExpr(s, hasAoi)} ${DIR[s.dir]}`),
     ', ',
   );
+
   // matched는 커서 조건을 걸기 전 집합의 수. 커서 뒤에서 세면 페이지마다 줄어든다.
   const coverage = hasAoi ? sql`inter_m2 > 0` : sql`TRUE`;
   const cursor = q.after ? cursorCondition(q.sort, q.after, hasAoi) : sql`TRUE`;

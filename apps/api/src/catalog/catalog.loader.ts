@@ -17,6 +17,7 @@ export class CatalogLoader implements OnModuleInit {
     const { features } = JSON.parse(await readFile(CATALOG_FILE, 'utf8')) as {
       features: StacItem[];
     };
+
     await this.catalog.saveAll(features.map(toScene));
     this.logger.log(`카탈로그 적재 ${features.length}건`);
   }

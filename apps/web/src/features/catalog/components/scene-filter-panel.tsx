@@ -30,6 +30,7 @@ const SENSORS: { value: Sensor; label: string }[] = [
   { value: "eo", label: "광학 (EO)" },
   { value: "sar", label: "레이더 (SAR)" },
 ];
+
 const GSD_OPTIONS = [10, 20, 30, 60];
 // Radix Select는 빈 문자열을 값으로 못 쓴다. "조건 없음"은 이 값으로 두고 URL에선 null.
 const ALL = "all";
@@ -53,6 +54,7 @@ export function SceneFilterPanel({
 
   const toggleSensor = (s: Sensor, on: boolean) => {
     const hidden = new Set(on ? [] : platformsOf(s));
+
     setParams({
       sensors: on
         ? [...params.sensors, s]

@@ -14,6 +14,7 @@ export function useSceneSearch(body: SearchBody | null) {
         body: { ...body!, token: pageParam },
         signal,
       });
+
       if (!response.ok) {
         const p = error as Problem | undefined;
         throw Object.assign(
@@ -21,6 +22,7 @@ export function useSceneSearch(body: SearchBody | null) {
           { status: response.status },
         );
       }
+
       return data as unknown as ItemCollection;
     },
     // 4xx는 다시 보내도 같다. 5xx와 네트워크 오류만 재시도.

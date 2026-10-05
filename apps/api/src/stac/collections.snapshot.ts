@@ -18,9 +18,15 @@ export class CollectionsSnapshot implements OnModuleInit {
       typeof json === 'object' && json !== null && 'collections' in json
         ? json.collections
         : null;
-    if (!Array.isArray(list) || list.length === 0 || !list.every(isCollection)) {
+
+    if (
+      !Array.isArray(list) ||
+      list.length === 0 ||
+      !list.every(isCollection)
+    ) {
       throw new Error(`${COLLECTIONS_FILE.pathname}: Collection 배열이 아님`);
     }
+
     this.collections = list;
   }
 
