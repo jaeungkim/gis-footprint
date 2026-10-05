@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import { formatKst } from "@/lib/date";
 import { COLLECTION_BY_SENSOR } from "../_lib/constants";
 import { useSelection } from "../_hooks/use-selection";
-import { platformLabel } from "../_lib/format";
+import { platformLabel, SENSOR_INFO } from "../_lib/format";
 import type { StacItem } from "../_lib/types";
 
 export function SceneCard({
@@ -65,9 +65,9 @@ export function SceneCard({
         </div>
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className="truncate font-medium">
-            {platformLabel(p.platform)}{" "}
+            {SENSOR_INFO[isSar ? "sar" : "eo"].label}{" "}
             <span className="font-normal text-muted-foreground">
-              {isSar ? "SAR" : "EO"}
+              · {platformLabel(p.platform)}
             </span>
           </span>
           <time dateTime={p.datetime} className="text-muted-foreground">
