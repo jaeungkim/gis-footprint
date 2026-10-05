@@ -50,9 +50,16 @@ export interface StacItem {
   properties: {
     datetime: string;
     platform: string;
+    gsd?: number;
     "eo:cloud_cover"?: number | null;
     "aoi:coverage_km2"?: number;
     "aoi:coverage_pct"?: number;
+    "grid:code"?: string; // EO: MGRS 타일
+    "view:sun_elevation"?: number;
+    "sar:instrument_mode"?: string;
+    "sar:polarizations"?: string[];
+    "sat:orbit_state"?: "ascending" | "descending";
+    "sat:relative_orbit"?: number;
   };
   assets: Record<string, { href: string } | undefined>;
 }

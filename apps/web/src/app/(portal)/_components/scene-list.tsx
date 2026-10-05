@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { useSceneSearch } from "../_hooks/use-scene-search";
+import { formatNumber } from "../_lib/format";
 import type { BlockReason, StacItem } from "../_lib/types";
 import { SceneCard } from "./scene-card";
 
@@ -13,13 +14,14 @@ export function SceneList({
   scenes,
   blocked,
   hasAoi,
+  scrollRef,
 }: {
   search: ReturnType<typeof useSceneSearch>;
   scenes: StacItem[];
   blocked: BlockReason | null;
   hasAoi: boolean;
+  scrollRef: React.RefObject<HTMLElement | null>;
 }) {
-  const rootRef = useRef<HTMLElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = search;
 
@@ -32,12 +34,12 @@ export function SceneList({
       ([entry]) => {
         if (entry.isIntersecting && !isFetchingNextPage) fetchNextPage();
       },
-      { root: rootRef.current, rootMargin: "200px" },
+      { root: scrollRef.current, rootMargin: "200px" },
     );
 
     io.observe(el);
     return () => io.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, scrollRef]);
 
   let body: React.ReactNode;
   if (blocked) {
@@ -78,16 +80,17 @@ export function SceneList({
   }
 
   const matched = search.data?.pages[0]?.numberMatched;
+  let title = "결과";
+  if (!blocked && matched !== undefined) {
+    title = `결과 ${formatNumber(matched)}건`;
+    // 지도에는 불러온 페이지만 그려진다
+    if (scenes.length < matched)
+      title += ` · 지도에 ${formatNumber(scenes.length)}건 표시`;
+  }
 
   return (
-    <section
-      ref={rootRef}
-      aria-label="검색 결과"
-      className="min-h-0 flex-1 overflow-y-auto p-4"
-    >
-      <h2 className="mb-3 text-sm text-muted-foreground">
-        {blocked || matched === undefined ? "결과" : `결과 ${matched}건`}
-      </h2>
+    <section aria-label="검색 결과" className="p-4">
+      <h2 className="mb-3 text-sm text-muted-foreground">{title}</h2>
       {body}
     </section>
   );

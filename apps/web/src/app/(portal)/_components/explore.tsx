@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useSceneSearch } from "../_hooks/use-scene-search";
 import { useSearchConditions } from "../_hooks/use-search-conditions";
 import { toSearchBody } from "../_lib/search-body";
@@ -26,18 +26,28 @@ export function Explore({ aois }: { aois: Aoi[] }) {
     [search.data],
   );
 
+  // 필터와 목록이 같이 스크롤된다. 필터 머리줄만 위에 붙어 있다.
+  const scrollRef = useRef<HTMLElement>(null);
+
   return (
-    <div className="grid h-full grid-rows-[minmax(0,1fr)_minmax(0,1fr)] md:grid-cols-[380px_1fr] md:grid-rows-1">
-      <aside className="flex min-h-0 flex-col border-b md:border-r md:border-b-0">
+    <div className="grid h-full grid-rows-[40dvh_minmax(0,1fr)] md:grid-cols-[380px_1fr] md:grid-rows-1">
+      <aside
+        ref={scrollRef}
+        className="min-h-0 overflow-y-auto border-t md:border-t-0 md:border-r"
+      >
         <SceneFilterPanel aois={aois} blocked={blocked} />
         <SceneList
           search={search}
           scenes={scenes}
           blocked={blocked}
           hasAoi={aoi !== null}
+          scrollRef={scrollRef}
         />
       </aside>
-      <SceneMap aoi={aoi?.geometry ?? null} scenes={scenes} />
+      {/* 모바일은 지도가 위, 목록이 아래 */}
+      <div className="relative min-h-0 max-md:order-first">
+        <SceneMap aoi={aoi?.geometry ?? null} scenes={scenes} />
+      </div>
     </div>
   );
 }

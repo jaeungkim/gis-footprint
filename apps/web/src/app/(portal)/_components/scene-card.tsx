@@ -1,13 +1,17 @@
 "use client";
 
 import { cn } from "cn";
-import { ImageOff, Radar } from "lucide-react";
+import { Copy, ImageOff, Radar } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { formatKst } from "@/lib/date";
 import { COLLECTION_BY_SENSOR } from "../_lib/constants";
 import { useSelection } from "../_hooks/use-selection";
-import { platformLabel, SENSOR_INFO } from "../_lib/format";
+import { formatNumber, platformLabel, SENSOR_INFO } from "../_lib/format";
 import type { StacItem } from "../_lib/types";
+
+const ORBIT = { ascending: "상승", descending: "하강" };
 
 export function SceneCard({
   scene,
@@ -30,29 +34,47 @@ export function SceneCard({
   const p = scene.properties;
   const isSar = scene.collection === COLLECTION_BY_SENSOR.sar;
   const thumb = scene.assets.thumbnail?.href;
+  // s3:// 썸네일(SAR)은 브라우저가 못 연다
+  const thumbUrl = thumb?.startsWith("https://") ? thumb : undefined;
+  const cloud = p["eo:cloud_cover"];
+
+  const badges: string[] = [];
+  if (!isSar)
+    badges.push(
+      cloud == null ? "운량 정보 없음" : `운량 ${formatNumber(cloud)}%`,
+    );
+  if (p.gsd !== undefined) badges.push(`해상도 ${p.gsd}m`);
+  if (hasAoi && p["aoi:coverage_pct"] !== undefined)
+    badges.push(
+      `커버리지 ${formatNumber(p["aoi:coverage_pct"])}% · ${formatNumber(p["aoi:coverage_km2"] ?? 0)}km²`,
+    );
 
   return (
-    <li ref={ref}>
+    <li
+      ref={ref}
+      className={cn(
+        // 위에 붙은 필터 머리줄에 가리지 않게
+        "scroll-mt-20 overflow-hidden rounded-lg border transition-colors",
+        hovered && "bg-muted",
+        selected && "border-selected ring-1 ring-selected",
+      )}
+    >
       <button
         type="button"
-        aria-pressed={selected}
+        aria-expanded={selected}
         onMouseEnter={() => hover(scene.id)}
         onMouseLeave={() => hover(null)}
         onFocus={() => hover(scene.id)}
         onBlur={() => hover(null)}
         onClick={() => select(selected ? null : scene.id, "list")}
-        className={cn(
-          "flex w-full gap-3 rounded-lg border p-2 text-left text-sm transition-colors",
-          hovered && "bg-muted",
-          selected && "border-primary ring-1 ring-primary",
-        )}
+        className="flex w-full gap-3 p-2 text-left text-sm"
       >
         <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded bg-muted text-muted-foreground">
-          {thumb?.startsWith("https://") ? (
+          {thumbUrl ? (
             // 외부 썸네일이라 next/image 최적화가 필요 없다
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={thumb}
+              src={thumbUrl}
               alt=""
               loading="lazy"
               className="size-full object-cover"
@@ -63,7 +85,7 @@ export function SceneCard({
             <ImageOff aria-hidden className="size-6" />
           )}
         </div>
-        <div className="flex min-w-0 flex-col gap-0.5">
+        <div className="flex min-w-0 flex-col gap-1">
           <span className="truncate font-medium">
             {SENSOR_INFO[isSar ? "sar" : "eo"].label}{" "}
             <span className="font-normal text-muted-foreground">
@@ -73,21 +95,93 @@ export function SceneCard({
           <time dateTime={p.datetime} className="text-muted-foreground">
             {formatKst(p.datetime)}
           </time>
-          <span className="text-muted-foreground">
-            {isSar
-              ? "운량 해당 없음"
-              : p["eo:cloud_cover"] == null
-                ? "운량 정보 없음"
-                : `운량 ${p["eo:cloud_cover"].toFixed(1)}%`}
-            {hasAoi && p["aoi:coverage_pct"] !== undefined && (
-              <>
-                {" · "}커버리지 {p["aoi:coverage_pct"].toFixed(1)}% (
-                {p["aoi:coverage_km2"]?.toFixed(2)} km²)
-              </>
-            )}
-          </span>
+          {badges.length > 0 && (
+            <ul className="flex flex-wrap gap-1">
+              {badges.map((b) => (
+                <li
+                  key={b}
+                  className="rounded border px-1.5 text-xs text-muted-foreground tabular-nums"
+                >
+                  {b}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </button>
+      {selected && (
+        <SceneDetail scene={scene} isSar={isSar} thumbUrl={thumbUrl} />
+      )}
     </li>
+  );
+}
+
+function SceneDetail({
+  scene,
+  isSar,
+  thumbUrl,
+}: {
+  scene: StacItem;
+  isSar: boolean;
+  thumbUrl: string | undefined;
+}) {
+  const p = scene.properties;
+  const rows: [string, string | undefined][] = isSar
+    ? [
+        [
+          "촬영 모드",
+          [p["sar:instrument_mode"], p["sar:polarizations"]?.join("+")]
+            .filter(Boolean)
+            .join(" · "),
+        ],
+        [
+          "궤도",
+          p["sat:orbit_state"] &&
+            `${ORBIT[p["sat:orbit_state"]]} · 상대 궤도 ${p["sat:relative_orbit"]}`,
+        ],
+      ]
+    : [
+        ["타일", p["grid:code"]],
+        [
+          "태양 고도",
+          p["view:sun_elevation"] !== undefined
+            ? `${formatNumber(p["view:sun_elevation"])}°`
+            : undefined,
+        ],
+      ];
+
+  const copyJson = () =>
+    navigator.clipboard
+      .writeText(JSON.stringify(scene, null, 2))
+      .then(() => toast.success("STAC JSON을 복사했어요."))
+      .catch(() => toast.error("복사하지 못했어요."));
+
+  return (
+    <div className="flex flex-col gap-3 border-t p-3 text-sm">
+      {thumbUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={thumbUrl}
+          alt={`${platformLabel(p.platform)} ${formatKst(p.datetime)} 미리보기`}
+          className="aspect-square w-full rounded bg-muted object-cover"
+        />
+      )}
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+        {rows
+          .filter(([, v]) => v)
+          .map(([k, v]) => (
+            <div key={k} className="contents">
+              <dt className="text-muted-foreground">{k}</dt>
+              <dd>{v}</dd>
+            </div>
+          ))}
+        <dt className="text-muted-foreground">ID</dt>
+        <dd className="font-mono text-xs break-all">{scene.id}</dd>
+      </dl>
+      <Button variant="outline" size="sm" onClick={copyJson}>
+        <Copy />
+        STAC JSON 복사
+      </Button>
+    </div>
   );
 }

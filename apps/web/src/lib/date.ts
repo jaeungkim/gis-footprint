@@ -22,3 +22,28 @@ const kst = new Intl.DateTimeFormat("ko-KR", {
 });
 
 export const formatKst = (iso: string) => kst.format(new Date(iso));
+
+// ISO 시각 → 한국 시간 날짜 YYYY-MM-DD (en-CA가 이 형식으로 찍는다)
+const kstDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" });
+
+export const toKstDay = (iso: string) => kstDay.format(new Date(iso));
+
+// from~to(YYYY-MM-DD) 안의 달을 최신 달부터 n개. 기간 빠른 선택용.
+export function monthsBetween(from: string, to: string, n = 3) {
+  const [fy, fm] = from.split("-").map(Number);
+  let [y, m] = to.split("-").map(Number);
+  const months: { label: string; from: string; to: string }[] = [];
+
+  while (months.length < n && (y > fy || (y === fy && m >= fm))) {
+    const mm = String(m).padStart(2, "0");
+    const last = new Date(y, m, 0).getDate(); // 다음 달 0일 = 이번 달 말일
+    months.push({
+      label: `${m}월`,
+      from: `${y}-${mm}-01`,
+      to: `${y}-${mm}-${last}`,
+    });
+    if (--m === 0) [y, m] = [y - 1, 12];
+  }
+
+  return months;
+}

@@ -5,6 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* 선택한 영상. 지도(scene-map.tsx COLOR.selected)와 목록이 같은 색을 쓴다 */
+  --color-selected: #f97316;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -162,4 +164,15 @@
 .dark .maplibregl-ctrl-group span.maplibregl-ctrl-icon,
 .dark .maplibregl-ctrl-attrib-button {
   filter: invert(1);
+}
+/* 겹친 영상 고르기 팝업 */
+.maplibregl-map .maplibregl-popup-content {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+.maplibregl-map .maplibregl-popup-tip {
+  display: none;
 }
