@@ -127,7 +127,7 @@ hits AS (
 filtered AS (
   SELECT * FROM hits WHERE ${coverage}
 )
-SELECT id, collection, stac, ST_AsGeoJSON(footprint) AS geometry,
+SELECT id, collection, stac, gsd_m, ST_AsGeoJSON(footprint) AS geometry,
        ST_XMin(footprint) AS xmin, ST_YMin(footprint) AS ymin,
        ST_XMax(footprint) AS xmax, ST_YMax(footprint) AS ymax,
        inter_m2 / 1e6 AS coverage_km2, inter_m2 / area_m2 * 100 AS coverage_pct,

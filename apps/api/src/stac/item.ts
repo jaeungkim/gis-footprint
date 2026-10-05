@@ -16,6 +16,8 @@ export function toStacItem(
   ) as Record<string, unknown>;
   const properties: Record<string, unknown> = {
     ...(stac.properties as Record<string, unknown> | undefined),
+    // 검색 필터(gsd)와 같은 값. 원본 S2 Item은 gsd를 asset에만 둔다.
+    gsd: row.gsdM,
   };
 
   if (row.coverageKm2 !== null && row.coveragePct !== null) {

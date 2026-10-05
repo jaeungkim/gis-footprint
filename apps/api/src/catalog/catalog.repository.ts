@@ -43,6 +43,7 @@ interface SearchRow extends Record<string, unknown> {
   id: string;
   collection: string;
   stac: unknown;
+  gsd_m: number;
   geometry: string;
   xmin: number;
   ymin: number;
@@ -143,6 +144,7 @@ export class PostgisCatalogRepository extends CatalogRepository {
         id: r.id,
         collection: r.collection,
         stac: r.stac,
+        gsdM: r.gsd_m,
         geometry: JSON.parse(r.geometry) as MultiPolygon,
         bbox: [r.xmin, r.ymin, r.xmax, r.ymax],
         coverageKm2: r.coverage_km2,

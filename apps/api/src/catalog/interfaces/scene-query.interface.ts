@@ -28,6 +28,7 @@ export interface SceneRow {
   id: string;
   collection: string;
   stac: unknown;
+  gsdM: number;
   geometry: MultiPolygon;
   bbox: [number, number, number, number];
   coverageKm2: number | null;
