@@ -8,6 +8,7 @@ import {
   type LngLat,
   type Map,
 } from "maplibre-gl";
+import { uniq } from "es-toolkit";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useMaplibre } from "@/hooks/use-maplibre";
@@ -178,13 +179,11 @@ export function SceneMap({
     map.on("click", (e) => {
       if (!map.getLayer("scene-fill")) return;
 
-      const ids = [
-        ...new Set(
-          map
-            .queryRenderedFeatures(e.point, { layers: ["scene-fill"] })
-            .map((f) => f.properties.id as string),
-        ),
-      ];
+      const ids = uniq(
+        map
+          .queryRenderedFeatures(e.point, { layers: ["scene-fill"] })
+          .map((f) => f.properties.id as string),
+      );
 
       if (ids.length > 1)
         setPick({ lngLat: e.lngLat, ids, scenes: dataRef.current.scenes });

@@ -1,12 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
+import { z } from "zod";
 import { api } from "@/lib/api";
 import { toKstDay } from "@/lib/date";
 
-interface Collection {
-  id: string;
-  summaries?: { platform?: string[] };
-  extent?: { temporal?: { interval?: (string | null)[][] } };
-}
+const collectionsSchema = z.object({
+  collections: z.array(
+    z.object({
+      id: z.string(),
+      summaries: z
+        .object({ platform: z.array(z.string()).optional() })
+        .optional(),
+      extent: z
+        .object({
+          temporal: z
+            .object({
+              interval: z.array(z.array(z.string().nullable())).optional(),
+            })
+            .optional(),
+        })
+        .optional(),
+    }),
+  ),
+});
 
 // 컬렉션 id → 위성 목록(summaries.platform), 카탈로그 전체 촬영 기간(한국 시간 날짜)
 export function useCollections() {
@@ -18,7 +33,7 @@ export function useCollections() {
       if (!response.ok)
         throw new Error(`컬렉션 조회 실패 (${response.status})`);
 
-      const { collections } = data as unknown as { collections: Collection[] };
+      const { collections } = collectionsSchema.parse(data);
       const intervals = collections.map(
         (c) => c.extent?.temporal?.interval?.[0] ?? [],
       );
@@ -29,7 +44,7 @@ export function useCollections() {
       return {
         platforms: Object.fromEntries(
           collections.map((c) => [c.id, c.summaries?.platform ?? []]),
-        ) as Record<string, string[]>,
+        ),
         from: starts.length > 0 ? toKstDay(starts[0]) : null,
         to: ends.length > 0 ? toKstDay(ends.at(-1)!) : null,
       };

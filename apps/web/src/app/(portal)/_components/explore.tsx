@@ -1,6 +1,9 @@
 "use client";
 
+import { ErrorBoundary } from "@suspensive/react";
 import { useMemo, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
 import { useSceneSearch } from "../_hooks/use-scene-search";
 import { useSearchConditions } from "../_hooks/use-search-conditions";
 import { toSearchBody } from "../_lib/search-body";
@@ -46,7 +49,21 @@ export function Explore({ aois }: { aois: Aoi[] }) {
       </aside>
       {/* 모바일은 지도가 위, 목록이 아래 */}
       <div className="relative min-h-0 max-md:order-first">
-        <SceneMap aoi={aoi?.geometry ?? null} scenes={scenes} />
+        {/* WebGL이 안 되는 등 지도가 죽어도 필터와 목록은 쓴다 */}
+        <ErrorBoundary
+          fallback={({ reset }) => (
+            <Empty className="size-full rounded-none bg-muted">
+              <EmptyDescription className="flex flex-col items-center gap-3">
+                지도를 띄우지 못했어요. 목록은 그대로 볼 수 있어요.
+                <Button variant="outline" size="sm" onClick={reset}>
+                  다시 시도
+                </Button>
+              </EmptyDescription>
+            </Empty>
+          )}
+        >
+          <SceneMap aoi={aoi?.geometry ?? null} scenes={scenes} />
+        </ErrorBoundary>
       </div>
     </div>
   );

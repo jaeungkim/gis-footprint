@@ -1,5 +1,7 @@
 "use client";
 
+import { Delay } from "@suspensive/react";
+import { range } from "es-toolkit";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription } from "@/components/ui/empty";
@@ -106,18 +108,21 @@ function Message({ children }: { children: React.ReactNode }) {
   );
 }
 
+// 로컬 API는 수십 ms라 바로 띄우면 깜빡인다. 200ms 넘게 걸릴 때만 보인다.
 function Loading({ rows = 4 }: { rows?: number }) {
   return (
-    <ul
-      aria-busy="true"
-      aria-label="불러오는 중"
-      className="mt-2 flex flex-col gap-2"
-    >
-      {Array.from({ length: rows }, (_, i) => (
-        <li key={i}>
-          <Skeleton className="h-[82px] rounded-lg" />
-        </li>
-      ))}
-    </ul>
+    <Delay ms={200}>
+      <ul
+        aria-busy="true"
+        aria-label="불러오는 중"
+        className="mt-2 flex flex-col gap-2"
+      >
+        {range(rows).map((i) => (
+          <li key={i}>
+            <Skeleton className="h-[82px] rounded-lg" />
+          </li>
+        ))}
+      </ul>
+    </Delay>
   );
 }

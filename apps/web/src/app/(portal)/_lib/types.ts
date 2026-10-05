@@ -1,22 +1,14 @@
-import type { PolygonGeometry } from "@/lib/geo";
+import { z } from "zod";
+import { polygonGeometrySchema, type PolygonGeometry } from "@/lib/geo";
+import type { SENSORS, SORT_PRESETS } from "./constants";
 
-export type Sensor = "eo" | "sar";
-export type SortPreset = "latest" | "coverage" | "cloud";
+export type Sensor = (typeof SENSORS)[number];
+export type SortPreset = (typeof SORT_PRESETS)[number];
 
 export interface Aoi {
   id: string;
   name: string;
   geometry: PolygonGeometry;
-}
-
-export interface SearchConditions {
-  from: string | null; // KST 날짜 YYYY-MM-DD
-  to: string | null;
-  sensors: Sensor[];
-  cloud: number; // 100이면 조건 없음
-  platforms: string[];
-  gsd: number | null;
-  sort: SortPreset;
 }
 
 export type Cql2 = { op: string; args: unknown[] };
@@ -41,32 +33,40 @@ export type BlockReason = "no-sensor" | "date-range";
 export type SearchBodyResult =
   { ok: true; body: SearchBody } | { ok: false; reason: BlockReason };
 
-// 화면에서 쓰는 필드만. 응답은 Swagger 타입이 없어서 여기서 정의한다.
-export interface StacItem {
-  type: "Feature";
-  id: string;
-  collection: string;
-  geometry: PolygonGeometry;
-  properties: {
-    datetime: string;
-    platform: string;
-    gsd?: number;
-    "eo:cloud_cover"?: number | null;
-    "aoi:coverage_km2"?: number;
-    "aoi:coverage_pct"?: number;
-    "grid:code"?: string; // EO: MGRS 타일
-    "view:sun_elevation"?: number;
-    "sar:instrument_mode"?: string;
-    "sar:polarizations"?: string[];
-    "sat:orbit_state"?: "ascending" | "descending";
-    "sat:relative_orbit"?: number;
-  };
-  assets: Record<string, { href: string } | undefined>;
-}
+// 화면에서 쓰는 필드만 검사한다. 응답은 Swagger 타입이 없어서 여기서 정의한다.
+// 나머지 필드는 STAC JSON 복사에 남도록 지우지 않는다(looseObject).
+const stacItemSchema = z.looseObject({
+  type: z.literal("Feature"),
+  id: z.string(),
+  collection: z.string(),
+  geometry: polygonGeometrySchema,
+  properties: z.looseObject({
+    datetime: z.string(),
+    platform: z.string(),
+    gsd: z.number().optional(),
+    "eo:cloud_cover": z.number().nullish(),
+    "aoi:coverage_km2": z.number().optional(),
+    "aoi:coverage_pct": z.number().optional(),
+    "grid:code": z.string().optional(), // EO: MGRS 타일
+    "view:sun_elevation": z.number().optional(),
+    "sar:instrument_mode": z.string().optional(),
+    "sar:polarizations": z.array(z.string()).optional(),
+    "sat:orbit_state": z.enum(["ascending", "descending"]).optional(),
+    "sat:relative_orbit": z.number().optional(),
+  }),
+  assets: z.record(z.string(), z.looseObject({ href: z.string() }).optional()),
+});
 
-export interface ItemCollection {
-  type: "FeatureCollection";
-  features: StacItem[];
-  numberMatched: number;
-  links: { rel: string; body?: { token?: string } }[];
-}
+export type StacItem = z.infer<typeof stacItemSchema>;
+
+export const itemCollectionSchema = z.object({
+  type: z.literal("FeatureCollection"),
+  features: z.array(stacItemSchema),
+  numberMatched: z.number(),
+  links: z.array(
+    z.object({
+      rel: z.string(),
+      body: z.object({ token: z.string().optional() }).optional(),
+    }),
+  ),
+});

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { difference, union, without } from "es-toolkit";
 import { CalendarIcon, ChevronRight, RotateCcw } from "lucide-react";
 import { ko } from "react-day-picker/locale";
 import { Button } from "@/components/ui/button";
@@ -35,20 +36,28 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { dateToDay, dayToDate, monthsBetween } from "@/lib/date";
-import { COLLECTION_BY_SENSOR } from "../_lib/constants";
+import {
+  CLOUD_STEP,
+  COLLECTION_BY_SENSOR,
+  GSD_OPTIONS,
+  SENSORS,
+} from "../_lib/constants";
 import { useCollections } from "../_hooks/use-collections";
 import { useMediaQuery } from "../_hooks/use-media-query";
 import { useSearchConditions } from "../_hooks/use-search-conditions";
 import { PLATFORM_NOTES, platformLabel, SENSOR_INFO } from "../_lib/format";
+import {
+  searchParamsParsers,
+  type SearchConditions,
+} from "../_lib/search-params";
 import type { Aoi, BlockReason, Sensor } from "../_lib/types";
 
-const SENSORS: Sensor[] = ["eo", "sar"];
-
-const GSD_OPTIONS = [10, 20, 30, 60];
 // Radix Select는 빈 문자열을 값으로 못 쓴다. "조건 없음"은 이 값으로 두고 URL에선 null.
 const ALL = "all";
 
-type Conditions = ReturnType<typeof useSearchConditions>[0];
+// URL에 같은 값이 두 번 들어 있어도 한 번만 남는다
+const toggle = <T,>(xs: T[], x: T, on: boolean) =>
+  on ? union(xs, [x]) : without(xs, x);
 
 // 2026-07-01 → 7.1
 const shortDay = (day: string) => {
@@ -57,7 +66,7 @@ const shortDay = (day: string) => {
 };
 
 // 접었을 때 보여 줄 조건 요약. 기본값과 다른 것만, 정렬은 조건이 아니라 뺀다.
-function summarize(p: Conditions, aoiName: string | undefined) {
+function summarize(p: SearchConditions, aoiName: string | undefined) {
   const chips: string[] = [];
 
   if (aoiName) chips.push(aoiName);
@@ -108,24 +117,17 @@ export function SceneFilterPanel({
   const platformsOf = (s: Sensor) =>
     catalog?.platforms[COLLECTION_BY_SENSOR[s]] ?? [];
 
-  const toggleSensor = (s: Sensor, on: boolean) => {
-    const hidden = new Set(on ? [] : platformsOf(s));
-
+  const toggleSensor = (s: Sensor, on: boolean) =>
     setParams({
-      sensors: on
-        ? [...params.sensors, s]
-        : params.sensors.filter((x) => x !== s),
+      sensors: toggle(params.sensors, s, on),
       // 꺼진 센서의 위성 선택은 지운다
-      platforms: params.platforms.filter((p) => !hidden.has(p)),
+      platforms: on
+        ? params.platforms
+        : difference(params.platforms, platformsOf(s)),
     });
-  };
 
   const togglePlatform = (p: string, on: boolean) =>
-    setParams({
-      platforms: on
-        ? [...params.platforms, p]
-        : params.platforms.filter((x) => x !== p),
-    });
+    setParams({ platforms: toggle(params.platforms, p, on) });
 
   const hasEo = params.sensors.includes("eo");
   const platformOptions = params.sensors.flatMap(platformsOf);
@@ -373,7 +375,7 @@ export function SceneFilterPanel({
               id="cloud"
               min={0}
               max={100}
-              step={5}
+              step={CLOUD_STEP}
               value={[cloud]}
               disabled={!hasEo}
               onValueChange={([v]) => setCloudDraft(v)}
@@ -389,8 +391,9 @@ export function SceneFilterPanel({
               <FieldLabel htmlFor="gsd">최대 해상도</FieldLabel>
               <Select
                 value={params.gsd === null ? ALL : String(params.gsd)}
+                // ALL은 목록에 없는 값이라 null(조건 없음)로 읽힌다
                 onValueChange={(v) =>
-                  setParams({ gsd: v === ALL ? null : Number(v) })
+                  setParams({ gsd: searchParamsParsers.gsd.parse(v) })
                 }
               >
                 <SelectTrigger id="gsd" className="w-full">
@@ -410,7 +413,9 @@ export function SceneFilterPanel({
               <FieldLabel htmlFor="sort">정렬</FieldLabel>
               <Select
                 value={sort}
-                onValueChange={(v) => setParams({ sort: v as typeof sort })}
+                onValueChange={(v) =>
+                  setParams({ sort: searchParamsParsers.sort.parse(v) })
+                }
               >
                 <SelectTrigger id="sort" className="w-full">
                   <SelectValue />

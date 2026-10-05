@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "cn";
+import { compact } from "es-toolkit";
 import { Copy, ImageOff, Radar } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -130,9 +131,10 @@ function SceneDetail({
     ? [
         [
           "촬영 모드",
-          [p["sar:instrument_mode"], p["sar:polarizations"]?.join("+")]
-            .filter(Boolean)
-            .join(" · "),
+          compact([
+            p["sar:instrument_mode"],
+            p["sar:polarizations"]?.join("+"),
+          ]).join(" · "),
         ],
         [
           "궤도",
