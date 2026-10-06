@@ -42,13 +42,13 @@ flowchart LR
 - api와 worker는 같은 NestJS 코드고 진입점만 다르다(`src/main.ts`, `src/worker.ts`). 수집이나 주문 처리처럼 오래 걸리는 일은 BullMQ 큐에 넣고 worker가 처리한다.
 - web이 `/api/*`를 api로 넘겨 주기 때문에 브라우저 입장에서는 origin이 하나다. CORS 설정이 필요 없다.
 - titiler는 `data/cogs`에 있는 샘플 영상을 지도 타일로 쪼개 주고 원하는 영역을 잘라 준다.
-- 인프라는 필요한 단계가 됐을 때 `compose.yaml`에 하나씩 넣는다. 지금은 Postgres만 있다.
+- 인프라는 필요한 단계가 됐을 때 `compose.yaml`에 하나씩 넣는다. 지금은 Postgres(PostGIS)만 있다.
 
 ## 스택
 
 - web: Next.js 16, Tailwind 4, shadcn/ui, TanStack Query/Table, nuqs, zustand, react-hook-form, zod, MapLibre GL, terra-draw
-- api: NestJS 12, Prisma 7, class-validator, zod, turf, BullMQ, pino
-- 인프라: Postgres 18 (16단계에서 PostGIS), Redis, titiler
+- api: NestJS 12, Prisma 7, class-validator, zod, BullMQ, pino
+- 인프라: Postgres 18 + PostGIS 3.6, Redis, titiler
 
 ## 로드맵
 
@@ -69,7 +69,7 @@ GIS 쪽이 먼저 궁금해서 1, 2, 3, 11, 12, 16 순서로 먼저 간다. 단�
 - [ ] 13. 촬영 요청
 - [ ] 14. 모니터링과 알림
 - [ ] 15. AI 분석
-- [ ] 16. PostGIS와 성능
+- [ ] 16. PostGIS 성능
 - [ ] 17. 운영과 안정화
 - [ ] 18. 기업 고객 기능
 

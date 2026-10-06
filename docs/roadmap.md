@@ -14,7 +14,7 @@ BE. 선행 없음.
 - 유효하지 않은 Item은 빼고 id와 사유를 로그로 남긴다. 불량 Item이 있어도 서버는 정상으로 떠야 하고 마지막에 적재 요약(n건 적재 / 전체 m건)을 찍는다.
 - STAC 속성을 플랫폼 모델로 정규화한다. 센서(EO/SAR), 위성, 촬영 시각, 운량(EO만), 해상도(GSD), footprint, 썸네일.
 - `GET /api/scenes/:id`는 단건을 GeoJSON Feature로 준다. 없으면 404.
-- 카탈로그는 리포지토리 인터페이스 뒤에 둔다. 처음엔 메모리로 구현하고 6단계에서 Postgres, 16단계에서 PostGIS로 바꾼다.
+- 카탈로그는 리포지토리 인터페이스 뒤에 두고 PostGIS에 저장한다([decisions.md](decisions.md)).
 
 **심화**: 검증 로직 단위 테스트, 제외 통계를 `/api/health`에 노출
 
@@ -101,7 +101,6 @@ FE. 선행 2.
 
 **필수**
 
-- 카탈로그를 Postgres에 저장한다. footprint는 JSON 컬럼에 두고 공간 검색은 계속 메모리 인덱스로 한다.
 - worker(BullMQ)를 넣는다. 수집 작업은 기간, 지역, 컬렉션을 받아서 `mock/stac-api`에서 Item을 가져오고 검증한 다음 upsert한다.
 - 수집 이력(IngestRun)에 상태, 신규/갱신/제외 건수, 제외 사유를 남긴다.
 - 백오피스
@@ -262,17 +261,14 @@ FE. 선행 3.
 
 **공부할 것**: 분석 파이프라인 단계 나누기, 픽셀 좌표와 지도 좌표 변환, 오래 걸리는 작업의 진행률, 결과 저장 형식(GeoJSON, FlatGeobuf)
 
-## 16. PostGIS와 성능
+## 16. PostGIS 성능
 
-BE. 선행 6.
+BE. 선행 2.
 
 **필수**
 
-- `compose.yaml`의 Postgres를 PostGIS 이미지로 바꾼다.
-- footprint를 `geometry(MultiPolygon, 4326)` 컬럼으로 옮기고 GIST 인덱스를 건다.
-- 검색은 `ST_Intersects`, 커버리지는 `ST_Intersection`과 `ST_Area(geography)`로 다시 구현해서 리포지토리를 갈아 끼운다.
-- 메모리 구현과 결과가 같은지 비교하는 테스트를 쓴다.
-- 영상 수만 건에서 메모리 구현과 PostGIS 성능을 비교하고 실행 계획(EXPLAIN)을 본다.
+- 쿼리를 고치기 전에 커버리지 값을 turf(`@turf/intersect`, `@turf/area`)로 검산하는 테스트를 쓴다.
+- 영상을 수만 건으로 늘리고 실행 계획(EXPLAIN)을 보면서 검색 쿼리를 고친다. 지금은 정렬과 상관없이 후보 전부의 교차 면적을 계산한다.
 - k6로 검색 API에 부하를 걸어서 바꾸기 전과 후의 응답 시간(p95)을 숫자로 남긴다.
 
 **심화**: footprint를 벡터 타일(`ST_AsMVT`)로 서빙, 히트맵 집계를 SQL로 옮기기, GeoServer를 붙여서 PostGIS 테이블을 WMS/WFS로 내보내고 지도와 QGIS에서 열어 보기

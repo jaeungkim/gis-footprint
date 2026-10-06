@@ -1,11 +1,11 @@
 # 개발 환경
 
-pnpm workspace with a Next.js app and a NestJS API on Postgres.
+pnpm workspace with a Next.js app and a NestJS API on Postgres + PostGIS.
 
 ```
 apps/web   Next.js 16 (App Router, Tailwind 4, shadcn/ui)        :3000
 apps/api   NestJS 12 (ESM, Prisma 7, Swagger, oxlint)            :3001, routes under /api
-compose.yaml   Postgres 18 for local dev                         :5432
+compose.yaml   Postgres 18 + PostGIS 3.6 for local dev           :5432
 ```
 
 ## Setup
@@ -104,9 +104,10 @@ This regenerates `apps/web/src/lib/schema.d.ts`. Commit it. If it fails with `EC
 
 Each app validates its env with zod at startup and refuses to start on a missing or invalid value. The API reads `apps/api/.env` (see `.env.example`); real environment variables win over the file.
 
-| Var            | App | Default                 | Notes                                                                                          |
-| -------------- | --- | ----------------------- | ---------------------------------------------------------------------------------------------- |
-| `DATABASE_URL` | api | required                | Postgres URL; `.env.example` matches `compose.yaml`                                            |
-| `PORT`         | api | `3001`                  | API only: `next dev` is pinned to 3000. If you change it, set the web app's `API_URL` to match |
-| `NODE_ENV`     | api | `development`           | `development`, `production` or `test`                                                          |
-| `API_URL`      | web | `http://localhost:3001` | Read by `next.config.ts`, so set it at build                                                   |
+| Var               | App | Default                 | Notes                                                                                          |
+| ----------------- | --- | ----------------------- | ---------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`    | api | required                | Postgres URL; `.env.example` matches `compose.yaml`                                            |
+| `PORT`            | api | `3001`                  | API only: `next dev` is pinned to 3000. If you change it, set the web app's `API_URL` to match |
+| `NODE_ENV`        | api | `development`           | `development`, `production` or `test`                                                          |
+| `STAC_PUBLIC_URL` | api | `http://localhost:3001` | Absolute base for STAC response links (the API's own address, not the web proxy)               |
+| `API_URL`         | web | `http://localhost:3001` | Read by `next.config.ts`, so set it at build                                                   |
