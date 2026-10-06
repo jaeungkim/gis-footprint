@@ -21,8 +21,9 @@ enum Sensor {
   SAR
 }
 
-// 카탈로그 상품. STAC Item 하나에 대응한다. footprint가 Unsupported라서
-// Prisma 클라이언트에 create/findMany가 안 생기고, 전부 $queryRaw/$executeRaw로 다룬다.
+// 카탈로그 상품. STAC Item 하나에 대응한다. footprint가 필수 Unsupported라서
+// 클라이언트에 create/upsert가 안 생기고 footprint는 select/where에도 없다.
+// 쿼리마다 footprint로 공간 연산을 하니까 전부 $queryRaw/$executeRaw로 다룬다.
 model Scene {
   id           String    @id
   groupKey     String    @map("group_key") // 처리 번호를 뺀 id. 재처리본 묶음

@@ -54,7 +54,7 @@ interface SearchRow extends Record<string, unknown> {
   matched: number;
 }
 
-// footprint는 Unsupported 컬럼이라 Prisma 클라이언트 메서드가 없다. 전부 raw SQL.
+// footprint는 Unsupported 컬럼이라 Prisma 클라이언트로 읽고 쓸 수 없다. 전부 raw SQL.
 @Injectable()
 export class PostgisCatalogRepository extends CatalogRepository {
   constructor(private readonly prisma: PrismaService) {
