@@ -13,7 +13,12 @@ import {
 } from './dto/search-request.dto.js';
 import type { ItemCollection, StacLink } from './interfaces/stac.interface.js';
 import { resolveSort } from './sortby.js';
-import { conditionHash, decodeToken, encodeToken } from './token.js';
+import {
+  conditionHash,
+  cursorFits,
+  decodeToken,
+  encodeToken,
+} from './token.js';
 
 // next 링크를 요청 방식에 맞게 만들려고 원래 요청을 같이 받는다.
 export type SearchOrigin =
@@ -68,7 +73,12 @@ export class SearchService {
     let after: (string | number)[] | null = null;
     if (body.token) {
       const token = decodeToken(body.token);
-      if (!token || token.h !== hash || token.k.length !== sort.length) {
+      if (
+        !token ||
+        token.h !== hash ||
+        token.k.length !== sort.length ||
+        !token.k.every((v, i) => cursorFits(sort[i].key, v))
+      ) {
         throw new BadRequestException(
           'token: 이 검색 조건의 토큰이 아니거나 깨짐',
         );
@@ -129,9 +139,13 @@ function nextLink(
     };
   }
 
+  // 같은 파라미터를 여러 번 보낸 값(?collections=a&collections=b)은 queryToBody처럼 콤마로 합친다.
+  // 빠뜨리면 다음 요청의 조건 해시가 달라져서 next 링크가 400이 난다.
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(origin.query)) {
-    if (k !== 'token' && typeof v === 'string') params.set(k, v);
+    if (k === 'token') continue;
+    if (typeof v === 'string') params.set(k, v);
+    else if (Array.isArray(v)) params.set(k, v.map(String).join(','));
   }
   params.set('token', token);
 

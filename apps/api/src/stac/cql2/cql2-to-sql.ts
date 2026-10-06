@@ -15,7 +15,6 @@ const OPS = {
   '>=': sql`>=`,
 };
 
-export const MAX_DEPTH = 10;
 export const MAX_LITERALS = 100; // 바인딩 파라미터 상한(65,535)과 CPU 보호
 
 function bad(message: string): never {
@@ -27,26 +26,21 @@ function isRef(x: PropertyRef | Literal): x is PropertyRef {
 }
 
 // 파싱된 CQL2 트리 → SQL 조각. 컬럼 이름은 scene 테이블 그대로(hits CTE 안에서 쓰인다).
+// 깊이는 cql2Schema가 이미 봤다.
 export function cql2ToSql(expr: Cql2Expr): Prisma.Sql {
   const budget = { literals: 0 };
-  return walk(expr, 1, budget);
+  return walk(expr, budget);
 }
 
-function walk(
-  e: Cql2Expr,
-  depth: number,
-  budget: { literals: number },
-): Prisma.Sql {
-  if (depth > MAX_DEPTH) bad(`깊이 ${MAX_DEPTH} 초과`);
-
+function walk(e: Cql2Expr, budget: { literals: number }): Prisma.Sql {
   switch (e.op) {
     case 'and':
     case 'or': {
-      const parts = e.args.map((a) => walk(a, depth + 1, budget));
+      const parts = e.args.map((a) => walk(a, budget));
       return sql`(${join(parts, e.op === 'and' ? ' AND ' : ' OR ')})`;
     }
     case 'not':
-      return sql`(NOT ${walk(e.args[0], depth + 1, budget)})`;
+      return sql`(NOT ${walk(e.args[0], budget)})`;
     case 'isNull':
       return sql`(${QUERYABLES[e.args[0].property].column} IS NULL)`;
     default: {

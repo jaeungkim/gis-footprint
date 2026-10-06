@@ -11,6 +11,9 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
       adapter: new PrismaPg({
         connectionString: config.get('DATABASE_URL', { infer: true }),
         connectionTimeoutMillis: 5_000,
+        // adapter-pg는 Date 파라미터를 시간대 없이 보내고 timestamptz를 UTC로 읽는다.
+        // 세션 시간대가 UTC가 아니면(Asia/Seoul 서버 등) 시각 조건이 그만큼 밀린다.
+        options: '-c TimeZone=UTC',
       }),
     });
   }

@@ -10,7 +10,7 @@ import type {
   SceneQuery,
   SearchResult,
 } from './interfaces/scene-query.interface.js';
-import { buildSearchSql } from './search.sql.js';
+import { areaM2, buildSearchSql } from './search.sql.js';
 
 // 저장소를 갈아 끼우는 자리. 16단계에서 성능을 바꿀 때 이 구현만 건드린다.
 // abstract class라서 Nest DI 토큰으로도 쓴다.
@@ -126,7 +126,7 @@ export class PostgisCatalogRepository extends CatalogRepository {
       { valid: boolean; reason: string; area: number }[]
     >(sql`
       SELECT ST_IsValid(g) AS valid, ST_IsValidReason(g) AS reason,
-             CASE WHEN ST_IsValid(g) THEN ST_Area(g::geography) ELSE 0 END AS area
+             CASE WHEN ST_IsValid(g) THEN ${areaM2(sql`g`)} ELSE 0 END AS area
       FROM (SELECT ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(aoi)}), 4326) AS g) t`);
 
     if (!r.valid) return { valid: false, reason: r.reason };

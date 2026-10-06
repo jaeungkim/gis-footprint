@@ -34,11 +34,13 @@ function samePosition(a: Position, b: Position): boolean {
 // 이웃하지 않은 변끼리 만나면 자기 교차. 링 사이(바깥 링과 구멍) 교차는 안 본다.
 // ponytail: O(n²) 변 쌍 비교. footprint 링은 점이 수십 개라 충분하고, 커지면 sweep line.
 function selfIntersects(ring: Position[]): boolean {
-  const edges = ring.length - 1;
+  // 같은 점이 연달아 나오는 건 RFC 7946도 PostGIS도 허용한다. 길이 0인 변은 빼고 본다.
+  const pts = ring.filter((p, i) => i === 0 || !samePosition(p, ring[i - 1]));
+  const edges = pts.length - 1;
   for (let i = 0; i < edges; i++) {
     for (let j = i + 2; j < edges; j++) {
       if (i === 0 && j === edges - 1) continue; // 첫 변과 마지막 변은 시작점을 공유
-      if (segmentsTouch(ring[i], ring[i + 1], ring[j], ring[j + 1])) {
+      if (segmentsTouch(pts[i], pts[i + 1], pts[j], pts[j + 1])) {
         return true;
       }
     }

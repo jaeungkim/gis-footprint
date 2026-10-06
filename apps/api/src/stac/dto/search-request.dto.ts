@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { geometrySchema } from '../../geo/geometry.schema.js';
 import { findPolygonError, rewind } from '../../geo/polygon.js';
 import type { DatetimeQuery } from '../../catalog/interfaces/scene-query.interface.js';
-import { cql2Schema } from '../cql2/cql2.schema.js';
+import { cql2Schema, rfc3339, text } from '../cql2/cql2.schema.js';
 import { SORTABLE_NAMES } from '../queryables.js';
 import { MAX_SORT_FIELDS, parseSortbyParam } from '../sortby.js';
 
@@ -23,12 +23,13 @@ export const searchBodySchema = z.object({
   intersects: geometrySchema.optional(),
   bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
   datetime: z.string().min(1).optional(),
-  collections: z.array(z.string().min(1)).optional(),
-  ids: z.array(z.string().min(1)).max(MAX_IDS).optional(),
-  // 명세: 최대값 초과는 400이 아니라 최대값으로 자른다
+  collections: z.array(text.min(1)).optional(),
+  ids: z.array(text.min(1)).max(MAX_IDS).optional(),
+  // 명세: 최대값 초과는 400이 아니라 최대값으로 자른다. z.int()는 안전 정수를 넘는 1e20을 400으로 내서 안 쓴다.
   limit: z
-    .int()
+    .number()
     .min(1)
+    .refine(Number.isInteger, '정수여야 함')
     .transform((v) => Math.min(v, MAX_LIMIT))
     .optional(),
   token: z.string().min(1).optional(),
@@ -70,7 +71,9 @@ function queryToBody(
     body.intersects = parseJson(intersects, 'intersects', ctx);
 
   const bbox = get('bbox');
-  if (bbox !== undefined) body.bbox = bbox.split(',').map(Number);
+  // Number('')는 0이라 "126,,127,37"이 남위 0이 된다. 빈 칸은 NaN으로 둬서 400.
+  if (bbox !== undefined)
+    body.bbox = bbox.split(',').map((s) => (s.trim() ? Number(s) : NaN));
 
   for (const k of ['datetime', 'token']) {
     const v = get(k);
@@ -101,26 +104,27 @@ function queryToBody(
 // GET 쿼리. 본문 모양으로 바꾼 뒤 searchBodySchema를 그대로 통과한다.
 export const searchQuerySchema = z.preprocess(queryToBody, searchBodySchema);
 
-const iso = z.iso.datetime({ offset: true });
+// STAC API 구현 노트: 열린 끝은 ".."나 빈 문자열
+const isOpen = (p: string) => p === '..' || p === '';
 
 // "start/end", "../end", "start/..", 단일 시각. RFC 3339, 양끝 포함.
 export function parseDatetime(s: string): DatetimeQuery {
   const parts = s.split('/');
   if (parts.length === 1) {
-    if (!iso.safeParse(s).success) bad(`datetime: RFC 3339가 아님 (${s})`);
+    if (!rfc3339.safeParse(s).success) bad(`datetime: RFC 3339가 아님 (${s})`);
     return { at: new Date(s) };
   }
 
   if (parts.length !== 2) bad('datetime: "start/end" 형식이어야 함');
   const [a, b] = parts;
-  if (a === '..' && b === '..') bad('datetime: 양쪽이 다 열린 구간');
+  if (isOpen(a) && isOpen(b)) bad('datetime: 양쪽이 다 열린 구간');
   for (const p of [a, b]) {
-    if (p !== '..' && !iso.safeParse(p).success)
+    if (!isOpen(p) && !rfc3339.safeParse(p).success)
       bad(`datetime: RFC 3339가 아님 (${p})`);
   }
 
-  const from = a === '..' ? null : new Date(a);
-  const to = b === '..' ? null : new Date(b);
+  const from = isOpen(a) ? null : new Date(a);
+  const to = isOpen(b) ? null : new Date(b);
   if (from && to && from > to) bad('datetime: 시작이 끝보다 늦음');
 
   return { from, to };

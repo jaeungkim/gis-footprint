@@ -29,8 +29,31 @@ export class ProblemDetailsFilter implements ExceptionFilter {
   }
 }
 
-// HttpException만 상세를 낸다. 그 외(GEOS, DB 오류 등)는 SQL이나 스택이 섞일 수 있어 고정 500.
+// body-parser 오류(깨진 JSON 400, 본문 초과 413)는 HttpException이 아니라 http-errors 객체다.
+// expose가 true면(4xx) 메시지를 클라이언트에 보여도 된다는 뜻이다.
+function isExposedHttpError(e: unknown): e is Error & { status: number } {
+  return (
+    e instanceof Error &&
+    'expose' in e &&
+    e.expose === true &&
+    'status' in e &&
+    typeof e.status === 'number'
+  );
+}
+
+// HttpException과 노출해도 되는 http-errors만 상세를 낸다.
+// 그 외(GEOS, DB 오류 등)는 SQL이나 스택이 섞일 수 있어 고정 500.
 export function toProblem(exception: unknown): Problem {
+  if (isExposedHttpError(exception)) {
+    const { status, message } = exception;
+    return {
+      type: 'about:blank',
+      title: STATUS_CODES[status] ?? 'Error',
+      status,
+      detail: message,
+    };
+  }
+
   if (!(exception instanceof HttpException)) {
     return { type: 'about:blank', title: 'Internal Server Error', status: 500 };
   }

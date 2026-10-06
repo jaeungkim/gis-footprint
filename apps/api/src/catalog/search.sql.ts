@@ -10,6 +10,11 @@ const { sql, join, empty } = Prisma;
 const DIR = { asc: sql`ASC`, desc: sql`DESC` };
 const AFTER = { asc: sql`>`, desc: sql`<` }; // 다음 페이지는 정렬 순서상 커서 뒤
 
+// 면적(m²). RFC 7946의 변은 경위도 직선이라 0.1°로 잘게 나눠 등적 투영(EPSG:6933)에서 잰다.
+// ::geography는 변을 대권으로 봐서 경도 폭이 180°를 넘는 AOI를 반대쪽으로 재고, -180..180이면 500이 난다.
+export const areaM2 = (g: Prisma.Sql) =>
+  sql`ST_Area(ST_Transform(ST_Segmentize(${g}, 0.1), 6933))`;
+
 // 정렬 키 → SQL 식. ORDER BY와 커서 조건이 같은 맵을 써서 어긋나지 않는다.
 export function sortKeyExpr(spec: SortSpec, hasAoi: boolean): Prisma.Sql {
   switch (spec.key) {
@@ -58,9 +63,10 @@ function cursorCondition(
   return sql`(${join(clauses, ' OR ')})`;
 }
 
-// picked: 공간·ids·collections·datetime을 건 뒤 재처리본(group_key)마다 최신 하나.
+// picked: 공간·collections·datetime을 건 뒤 재처리본마다 최신 하나. 재처리본은 group_key와 촬영 시각이
+//         같은 Item이다(같은 날 같은 타일의 다른 데이터스트립은 group_key만 같고 시각이 다르다).
 //         이 조건들은 재처리본끼리 값이 같아서 선택 앞에 둬도 결과가 안 바뀐다.
-// hits:   CQL2 predicate(운량을 볼 수 있어서 선택 뒤) + 교차 면적.
+// hits:   ids와 CQL2 predicate(재처리본끼리 다를 수 있어서 선택 뒤) + 교차 면적.
 // ponytail: 정렬이 뭐든 후보 전부의 교차 면적을 계산하고 count(*) OVER ()로 전체를 훑는다.
 //   1,262건엔 충분. 16단계: 커버리지 정렬이 아닐 때 LIMIT 후 교차 계산, NOT ST_Touches로 경계 제외.
 export function buildSearchSql(q: SceneQuery): Prisma.Sql {
@@ -69,7 +75,6 @@ export function buildSearchSql(q: SceneQuery): Prisma.Sql {
   const picked: Prisma.Sql[] = [
     hasAoi ? sql`ST_Intersects(s.footprint, aoi.g)` : sql`TRUE`,
   ];
-  if (q.ids.length) picked.push(sql`s.id = ANY(${q.ids}::text[])`);
   if (q.collections.length) {
     picked.push(sql`s.collection = ANY(${q.collections}::text[])`);
   }
@@ -83,16 +88,19 @@ export function buildSearchSql(q: SceneQuery): Prisma.Sql {
     }
   }
 
+  const hit: Prisma.Sql[] = [q.predicate ?? sql`TRUE`];
+  if (q.ids.length) hit.push(sql`p.id = ANY(${q.ids}::text[])`);
+
   // AOI가 없으면 aoi CTE와 교차 식을 아예 뺀다. `aoi.g IS NULL OR ST_Intersects(...)`는 GiST를 못 탄다.
   const aoiCte = hasAoi
     ? sql`aoi AS (
-        SELECT g, ST_Area(g::geography) AS area_m2
+        SELECT g, ${areaM2(sql`g`)} AS area_m2
         FROM (SELECT ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(q.aoi)}), 4326) AS g) t
       ),`
     : empty;
   const fromAoi = hasAoi ? sql`, aoi` : empty;
   const inter = hasAoi
-    ? sql`ST_Area(ST_Intersection(p.footprint, aoi.g)::geography)`
+    ? areaM2(sql`ST_Intersection(p.footprint, aoi.g)`)
     : sql`NULL::float8`;
   const area = hasAoi ? sql`aoi.area_m2` : sql`NULL::float8`;
 
@@ -114,15 +122,15 @@ export function buildSearchSql(q: SceneQuery): Prisma.Sql {
   return sql`
 WITH ${aoiCte}
 picked AS (
-  SELECT DISTINCT ON (s.group_key) s.*
+  SELECT DISTINCT ON (s.group_key, s.acquired_at) s.*
   FROM scene s${fromAoi}
   WHERE ${join(picked, ' AND ')}
-  ORDER BY s.group_key, s.updated_at DESC NULLS LAST, s.id DESC
+  ORDER BY s.group_key, s.acquired_at, s.updated_at DESC NULLS LAST, s.id DESC
 ),
 hits AS (
   SELECT p.*, ${inter} AS inter_m2, ${area} AS area_m2
   FROM picked p${fromAoi}
-  WHERE ${q.predicate ?? sql`TRUE`}
+  WHERE ${join(hit, ' AND ')}
 ),
 filtered AS (
   SELECT * FROM hits WHERE ${coverage}

@@ -21,8 +21,10 @@ const SENSOR_BY_COLLECTION: Record<string, Sensor> = {
   'sentinel-1-grd': 'SAR',
 };
 
-// S2 L2A id는 S2B_52SEH_20260717_1_L2A 꼴이고 가운데 숫자가 처리 번호다.
-// 다른 컬렉션은 처리 번호가 없어서 id 그대로.
+// S2 L2A id는 S2B_52SEH_20260717_1_L2A 꼴이고 가운데 숫자는 s2:sequence다.
+// 재처리본은 이 숫자만 다르지만 같은 날 같은 타일의 다른 데이터스트립도 그렇다.
+// 그래서 재처리본 묶음은 group_key에 촬영 시각까지 같아야 한다(search.sql.ts).
+// 다른 컬렉션은 이 숫자가 없어서 id 그대로.
 export function groupKeyOf(id: string): string {
   return id.replace(/_\d+_(?=L2A$)/, '_');
 }

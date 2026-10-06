@@ -26,7 +26,7 @@ enum Sensor {
 // 쿼리마다 footprint로 공간 연산을 하니까 전부 $queryRaw/$executeRaw로 다룬다.
 model Scene {
   id           String    @id
-  groupKey     String    @map("group_key") // 처리 번호를 뺀 id. 재처리본 묶음
+  groupKey     String    @map("group_key") // s2:sequence를 뺀 id. acquiredAt까지 같으면 재처리본
   collection   String
   sensor       Sensor
   platform     String

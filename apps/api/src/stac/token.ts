@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import type { SortKey } from '../catalog/interfaces/scene-query.interface.js';
 
 // 불투명 페이지 토큰. k = 정렬 키 값(sort 순서), h = 검색 조건 해시.
 // 조건이 바뀐 요청에 옛 토큰을 쓰면 h가 안 맞아서 400(AIP-158 규칙).
@@ -25,6 +26,14 @@ export function decodeToken(s: string): TokenPayload | null {
   } catch {
     return null;
   }
+}
+
+// 해시는 비밀이 아니라 k는 누구나 고쳐 보낼 수 있다. 정렬 키마다 타입을 봐서 DB 오류(500)까지 못 가게 한다.
+// datetime은 epoch ms이고 Postgres에 있는 해(1년 이후)여야 한다.
+export function cursorFits(key: SortKey, v: string | number): boolean {
+  if (key === 'id') return typeof v === 'string' && !v.includes('\0');
+  if (typeof v !== 'number' || !Number.isFinite(v)) return false;
+  return key !== 'datetime' || new Date(v).getUTCFullYear() >= 1;
 }
 
 export function conditionHash(conditions: unknown): string {
