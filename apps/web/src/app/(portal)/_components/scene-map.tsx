@@ -68,6 +68,7 @@ export function SceneMap({
   // style.load 때 다시 그릴 최신 데이터
   const dataRef = useRef({ aoi, scenes });
   const [loading, setLoading] = useState(true);
+  const [styleError, setStyleError] = useState<Error | null>(null);
   // footprint가 겹친 곳을 누르면 고를 수 있게 목록 팝업을 띄운다
   const [pick, setPick] = useState<{
     lngLat: LngLat;
@@ -141,6 +142,11 @@ export function SceneMap({
   useEffect(() => {
     const map = mapRef.current!;
     map.once("load", () => setLoading(false));
+    // 배경 지도 스타일을 못 받으면 load가 안 와서 로딩 화면에 갇힌다. ErrorBoundary로 넘긴다.
+    // 스타일이 뜬 뒤의 타일, 글리프 실패는 지도가 그대로 쓸 만하니 넘어간다.
+    map.on("error", (e) => {
+      if (!map.getStyle()) setStyleError(new Error(e.error.message));
+    });
 
     const unsubscribe = useSelection.subscribe((s, prev) => {
       if (s.hoveredId !== prev.hoveredId) {
@@ -201,8 +207,10 @@ export function SceneMap({
       .setLngLat(activePick.lngLat)
       .setDOMContent(popupEl)
       .addTo(map);
+    // 다른 겹친 지점을 누르면 같은 click에서 새 pick이 먼저 들어오고 closeOnClick이 뒤따른다.
+    // 새 pick까지 지우지 않게 이 팝업의 pick일 때만 지운다.
     const onClose = () => {
-      setPick(null);
+      setPick((p) => (p === activePick ? null : p));
       useSelection.getState().hover(null);
     };
     popup.on("close", onClose);
@@ -232,6 +240,8 @@ export function SceneMap({
   }, [mapRef, aoi]);
 
   const { hover, select } = useSelection.getState();
+
+  if (styleError) throw styleError;
 
   return (
     <div className="relative size-full">

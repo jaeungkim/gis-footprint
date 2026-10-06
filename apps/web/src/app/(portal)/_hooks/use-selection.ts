@@ -4,7 +4,7 @@ import { create } from "zustand";
 interface Selection {
   hoveredId: string | null;
   selectedId: string | null;
-  selectedFrom: "map" | "list" | null; // 지도에서 고르면 목록이 그 항목으로 스크롤한다
+  selectedFrom: "map" | "list" | null; // 지도에서 고르면 목록이 그 항목으로 한 번 스크롤하고 null로 돌린다
   hover: (id: string | null) => void;
   select: (id: string | null, from: "map" | "list") => void;
 }

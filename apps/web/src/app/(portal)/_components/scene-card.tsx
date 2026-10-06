@@ -27,9 +27,11 @@ export function SceneCard({
   const fromMap = useSelection((s) => s.selectedFrom === "map");
   const { hover, select } = useSelection.getState();
 
+  // 지도에서 고른 직후 한 번만. 검색이 바뀌어 카드가 다시 마운트될 때 또 끌려가지 않게 지운다.
   useEffect(() => {
-    if (selected && fromMap)
-      ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    if (!selected || !fromMap) return;
+    ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    useSelection.setState({ selectedFrom: null });
   }, [selected, fromMap]);
 
   const p = scene.properties;
@@ -152,11 +154,15 @@ function SceneDetail({
         ],
       ];
 
-  const copyJson = () =>
-    navigator.clipboard
-      .writeText(JSON.stringify(scene, null, 2))
-      .then(() => toast.success("STAC JSON을 복사했어요."))
-      .catch(() => toast.error("복사하지 못했어요."));
+  // http로 열면(localhost 말고) navigator.clipboard가 없어서 바로 던진다. 그것도 토스트로.
+  const copyJson = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(scene, null, 2));
+      toast.success("STAC JSON을 복사했어요.");
+    } catch {
+      toast.error("복사하지 못했어요.");
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3 border-t p-3 text-sm">

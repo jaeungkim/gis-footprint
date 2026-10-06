@@ -25,12 +25,17 @@ export function SceneList({
   scrollRef: React.RefObject<HTMLElement | null>;
 }) {
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = search;
+  const {
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    fetchNextPage,
+  } = search;
 
-  // 목록 끝이 보이면 다음 페이지
+  // 목록 끝이 보이면 다음 페이지. 실패하면 다시 시도 버튼에 맡긴다(안 그러면 같은 요청을 계속 보낸다).
   useEffect(() => {
     const el = sentinelRef.current;
-    if (!el || !hasNextPage) return;
+    if (!el || !hasNextPage || isFetchNextPageError) return;
 
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -41,7 +46,13 @@ export function SceneList({
 
     io.observe(el);
     return () => io.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, scrollRef]);
+  }, [
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    fetchNextPage,
+    scrollRef,
+  ]);
 
   let body: React.ReactNode;
   if (blocked) {
@@ -69,7 +80,7 @@ export function SceneList({
         </ul>
         <div ref={sentinelRef} />
         {isFetchingNextPage && <Loading rows={2} />}
-        {search.isFetchNextPageError && (
+        {isFetchNextPageError && (
           <Message>
             <span className="text-destructive">{search.error?.message}</span>
             <Button variant="outline" size="sm" onClick={() => fetchNextPage()}>
