@@ -1,7 +1,10 @@
 import { skipToken, useInfiniteQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { api } from "@/lib/api";
-import { itemCollectionSchema, type SearchBody } from "../_lib/types";
+import {
+  itemCollectionSchema,
+  type SearchBody,
+} from "@/features/explore/types";
 
 const problemSchema = z
   .object({ title: z.string(), detail: z.string() })

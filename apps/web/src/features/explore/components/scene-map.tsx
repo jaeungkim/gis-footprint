@@ -12,11 +12,11 @@ import { uniq } from "es-toolkit";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useMaplibre } from "@/hooks/use-maplibre";
-import { formatKst } from "@/lib/date";
-import { bboxOf, type PolygonGeometry } from "@/lib/geo";
-import { useSelection } from "../_hooks/use-selection";
-import { platformLabel } from "../_lib/format";
-import type { StacItem } from "../_lib/types";
+import { formatKst } from "@/utils/date";
+import { bboxOf, type PolygonGeometry } from "@/utils/geo";
+import { useSelection } from "@/features/explore/stores/selection";
+import { platformLabel } from "@/features/explore/utils/format";
+import type { StacItem } from "@/features/explore/types";
 
 // selected는 globals.css의 --color-selected와 같은 값
 const COLOR = { scene: "#60a5fa", selected: "#f97316", aoi: "#e11d48" };

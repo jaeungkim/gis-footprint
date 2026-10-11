@@ -6,10 +6,10 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { useSceneSearch } from "../_hooks/use-scene-search";
-import { formatNumber } from "../_lib/format";
-import type { BlockReason, StacItem } from "../_lib/types";
-import { SceneCard } from "./scene-card";
+import type { useSceneSearch } from "@/features/explore/api/search-scenes";
+import { formatNumber } from "@/features/explore/utils/format";
+import type { BlockReason, StacItem } from "@/features/explore/types";
+import { SceneCard } from "@/features/explore/components/scene-card";
 
 export function SceneList({
   search,

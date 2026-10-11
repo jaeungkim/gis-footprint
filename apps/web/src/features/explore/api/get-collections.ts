@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { api } from "@/lib/api";
-import { toKstDay } from "@/lib/date";
+import { toKstDay } from "@/utils/date";
 
 const collectionsSchema = z.object({
   collections: z.array(

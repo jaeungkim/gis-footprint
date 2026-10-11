@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
-import { polygonGeometrySchema } from "@/lib/geo";
-import type { Aoi } from "./types";
+import { polygonGeometrySchema } from "@/utils/geo";
+import type { Aoi } from "@/features/explore/types";
 
 const aoiFileSchema = z.object({
   features: z.array(

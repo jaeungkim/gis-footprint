@@ -1,8 +1,13 @@
 // 검색 조건(URL) → STAC Item Search POST 본문.
-import type { PolygonGeometry } from "@/lib/geo";
-import { COLLECTION_BY_SENSOR, PAGE_SIZE } from "./constants";
-import type { SearchConditions } from "./search-params";
-import type { Cql2, SearchBody, SearchBodyResult, SortPreset } from "./types";
+import type { PolygonGeometry } from "@/utils/geo";
+import { COLLECTION_BY_SENSOR, PAGE_SIZE } from "@/features/explore/constants";
+import type { SearchConditions } from "@/features/explore/utils/search-params";
+import type {
+  Cql2,
+  SearchBody,
+  SearchBodyResult,
+  SortPreset,
+} from "@/features/explore/types";
 
 const SORTBY: Record<SortPreset, SearchBody["sortby"]> = {
   latest: [{ field: "properties.datetime", direction: "desc" }],

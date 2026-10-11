@@ -1,4 +1,4 @@
-import type { Sensor } from "./types";
+import type { Sensor } from "@/features/explore/types";
 
 // sentinel-2a → Sentinel-2A
 export const platformLabel = (p: string) =>

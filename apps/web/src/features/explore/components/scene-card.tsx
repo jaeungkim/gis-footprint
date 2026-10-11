@@ -6,11 +6,15 @@ import { Copy, ImageOff, Radar } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { formatKst } from "@/lib/date";
-import { COLLECTION_BY_SENSOR } from "../_lib/constants";
-import { useSelection } from "../_hooks/use-selection";
-import { formatNumber, platformLabel, SENSOR_INFO } from "../_lib/format";
-import type { StacItem } from "../_lib/types";
+import { formatKst } from "@/utils/date";
+import { COLLECTION_BY_SENSOR } from "@/features/explore/constants";
+import { useSelection } from "@/features/explore/stores/selection";
+import {
+  formatNumber,
+  platformLabel,
+  SENSOR_INFO,
+} from "@/features/explore/utils/format";
+import type { StacItem } from "@/features/explore/types";
 
 const ORBIT = { ascending: "상승", descending: "하강" };
 
