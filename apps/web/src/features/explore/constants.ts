@@ -1,4 +1,4 @@
-import type { Sensor } from "./types";
+import type { Sensor } from "@/features/explore/types";
 
 export const SENSORS = ["eo", "sar"] as const;
 export const SORT_PRESETS = ["latest", "coverage", "cloud"] as const;

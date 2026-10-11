@@ -8,7 +8,12 @@ import {
   type inferParserType,
 } from "nuqs";
 import { z } from "zod";
-import { CLOUD_STEP, GSD_OPTIONS, SENSORS, SORT_PRESETS } from "./constants";
+import {
+  CLOUD_STEP,
+  GSD_OPTIONS,
+  SENSORS,
+  SORT_PRESETS,
+} from "@/features/explore/constants";
 
 // KST 날짜 YYYY-MM-DD 문자열 그대로 둔다. 형식이 틀리거나 없는 날짜(02-30)는 조건 없음으로 읽는다.
 const parseAsDay = createParser({

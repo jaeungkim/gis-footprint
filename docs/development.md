@@ -70,25 +70,31 @@ This creates a migration in `apps/api/prisma/migrations` (commit it), applies it
 
 ## Web layout
 
-Next.js leaves project organization open. This app follows the docs' "split project files by feature or route" strategy: code shared across routes lives in top-level folders under `src/`, and code used by one route is colocated in that route segment under private `_folders` (opted out of routing). Shared folder names follow the shadcn aliases in `components.json` (`components`, `ui`, `lib`, `hooks`).
+Next.js leaves project organization open. This app follows [bulletproof-react](https://github.com/alan2207/bulletproof-react): `app/` holds routes only, each feature owns its code under `features/<name>/`, and anything shared across features lives in a flat top-level folder. No barrel `index.ts` files; import the file directly.
 
 ```
 apps/web/src
-  app/
-    layout.tsx, providers.tsx, error.tsx, not-found.tsx
+  app/                routes, layouts, providers, error/not-found. No business logic.
     (portal)/         route group for the main shell, not in the URL
-      layout.tsx, page.tsx
-      _components/    route UI (explore, scene list/map/filters)
-      _hooks/         URL state, server queries, client stores
-      _lib/           pure logic, server-side loaders, types, constants
+  features/
+    explore/          scene search screen
+      api/            react-query hooks per endpoint (get-collections, search-scenes)
+      components/     explore, scene list/map/card, filter panel
+      hooks/          URL state (nuqs)
+      stores/         zustand client state (selection)
+      types/          zod schemas + inferred types
+      utils/          pure logic: search body, URL parsers, format, server-side AOI loader
+      constants.ts
   components/
     ui/               shadcn primitives (added with `shadcn add`)
     layout/           app shell (site header)
-  hooks/              hooks shared across routes (use-maplibre: base map + theme style)
-  lib/                framework-free helpers (api client + generated schema, geo, date)
+  hooks/              shared hooks (use-maplibre, use-media-query)
+  lib/                preconfigured libraries (openapi-fetch client, maplibre controls)
+  types/              shared types (generated OpenAPI schema)
+  utils/              framework-free helpers (date, geo)
 ```
 
-Route code imports from shared folders, never from another route's private folders. Promote code to a shared folder once a second route needs it.
+Dependencies flow one way: shared folders → `features` → `app`. ESLint (`import/no-restricted-paths` in `eslint.config.mjs`) fails the build if a shared folder imports from `features` or `app`, or a feature imports from `app`. Features must not import from each other; promote to a shared folder instead.
 
 ## API types
 
@@ -98,7 +104,7 @@ Nest serves its OpenAPI spec at `/api/docs-json`, built from `*.dto.ts` classes 
 pnpm --filter @footprint/web gen:api
 ```
 
-This regenerates `apps/web/src/lib/schema.d.ts`. Commit it. If it fails with `ECONNREFUSED`, the API is not running.
+This regenerates `apps/web/src/types/api.d.ts`. Commit it. If it fails with `ECONNREFUSED`, the API is not running.
 
 ## Env
 

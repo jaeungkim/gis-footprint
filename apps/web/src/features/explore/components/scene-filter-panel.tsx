@@ -35,22 +35,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { dateToDay, dayToDate, monthsBetween } from "@/lib/date";
+import { dateToDay, dayToDate, monthsBetween } from "@/utils/date";
 import {
   CLOUD_STEP,
   COLLECTION_BY_SENSOR,
   GSD_OPTIONS,
   SENSORS,
-} from "../_lib/constants";
-import { useCollections } from "../_hooks/use-collections";
-import { useMediaQuery } from "../_hooks/use-media-query";
-import { useSearchConditions } from "../_hooks/use-search-conditions";
-import { PLATFORM_NOTES, platformLabel, SENSOR_INFO } from "../_lib/format";
+} from "@/features/explore/constants";
+import { useCollections } from "@/features/explore/api/get-collections";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { useSearchConditions } from "@/features/explore/hooks/use-search-conditions";
+import {
+  PLATFORM_NOTES,
+  platformLabel,
+  SENSOR_INFO,
+} from "@/features/explore/utils/format";
 import {
   searchParamsParsers,
   type SearchConditions,
-} from "../_lib/search-params";
-import type { Aoi, BlockReason, Sensor } from "../_lib/types";
+} from "@/features/explore/utils/search-params";
+import type { Aoi, BlockReason, Sensor } from "@/features/explore/types";
 
 // Radix Select는 빈 문자열을 값으로 못 쓴다. "조건 없음"은 이 값으로 두고 URL에선 null.
 const ALL = "all";

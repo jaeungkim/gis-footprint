@@ -10,7 +10,7 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "gen:api": "openapi-typescript http://localhost:3001/api/docs-json -o src/lib/schema.d.ts && prettier --write src/lib/schema.d.ts"
+    "gen:api": "openapi-typescript http://localhost:3001/api/docs-json -o src/types/api.d.ts && prettier --write src/types/api.d.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

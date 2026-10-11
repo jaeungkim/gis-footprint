@@ -4,13 +4,13 @@ import { ErrorBoundary } from "@suspensive/react";
 import { useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription } from "@/components/ui/empty";
-import { useSceneSearch } from "../_hooks/use-scene-search";
-import { useSearchConditions } from "../_hooks/use-search-conditions";
-import { toSearchBody } from "../_lib/search-body";
-import type { Aoi } from "../_lib/types";
-import { SceneFilterPanel } from "./scene-filter-panel";
-import { SceneList } from "./scene-list";
-import { SceneMap } from "./scene-map";
+import { useSceneSearch } from "@/features/explore/api/search-scenes";
+import { useSearchConditions } from "@/features/explore/hooks/use-search-conditions";
+import { toSearchBody } from "@/features/explore/utils/search-body";
+import type { Aoi } from "@/features/explore/types";
+import { SceneFilterPanel } from "@/features/explore/components/scene-filter-panel";
+import { SceneList } from "@/features/explore/components/scene-list";
+import { SceneMap } from "@/features/explore/components/scene-map";
 
 export function Explore({ aois }: { aois: Aoi[] }) {
   const [params] = useSearchConditions();

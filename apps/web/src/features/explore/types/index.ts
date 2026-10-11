@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { polygonGeometrySchema, type PolygonGeometry } from "@/lib/geo";
-import type { SENSORS, SORT_PRESETS } from "./constants";
+import { polygonGeometrySchema, type PolygonGeometry } from "@/utils/geo";
+import type { SENSORS, SORT_PRESETS } from "@/features/explore/constants";
 
 export type Sensor = (typeof SENSORS)[number];
 export type SortPreset = (typeof SORT_PRESETS)[number];

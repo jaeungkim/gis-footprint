@@ -9,8 +9,32 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "public/**",
     "next-env.d.ts",
   ]),
+  {
+    // bulletproof-react 단방향 의존: shared → features → app
+    rules: {
+      "import/no-restricted-paths": [
+        "error",
+        {
+          zones: [
+            { target: "./src/features", from: "./src/app" },
+            {
+              target: [
+                "./src/components",
+                "./src/hooks",
+                "./src/lib",
+                "./src/types",
+                "./src/utils",
+              ],
+              from: ["./src/features", "./src/app"],
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;
